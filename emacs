@@ -17,9 +17,6 @@
 ;;; Show matching parentecies
 (show-paren-mode 1)
 
-;;; Support wheel mouse scrolling
-(mouse-wheel-mode t)
-
 ;;; Unset the line wrapping
 (setq-default truncate-lines t)
 (setq truncate-partial-width-windows nil)
