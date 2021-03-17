@@ -1,0 +1,38 @@
+### Common functions
+function parse_git_branch() {
+  \git branch 2> /dev/null | \sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+}
+
+### Set Homebrew bash completion
+[[ -r "/usr/local/etc/profile.d/bash_completion.sh" ]] && . "/usr/local/etc/profile.d/bash_completion.sh"
+
+### Spelling correction
+shopt -s cdspell
+
+### Do not put duplicate lines or lines starting with space in the history
+export HISTCONTROL=ignoreboth
+
+### Append to the history file (do not overwrite it)
+shopt -s histappend
+
+### Silence the zsh message as the default shell
+export BASH_SILENCE_DEPRECATION_WARNING=1
+
+### Common environment settings
+export CLICOLOR=1
+export PS1="\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]\$(parse_git_branch)\[\e[0;32m\]\$\[\e[0m\] "
+export EDITOR=emacs
+
+### Host specific environment settings
+
+### Common aliases
+alias ll='ls -l'
+alias la='ls -la'
+alias rm='rm -i'
+alias grep='grep --color=always'
+alias more='more -RS'
+alias less='less -RS'
+alias emacs='emacs -nw'
+alias e='emacs'
+
+### User specific aliases
