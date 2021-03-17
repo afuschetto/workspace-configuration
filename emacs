@@ -14,6 +14,9 @@
 ;;; Set standard indent to 4 rather that 8
 (setq default-tab-width 4)
 
+;;; Show matching parentecies
+(show-paren-mode 1)
+
 ;;; Support wheel mouse scrolling
 (mouse-wheel-mode t)
 
