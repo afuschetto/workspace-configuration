@@ -1,6 +1,0 @@
-### Set Mongo utility functions
-[[ -r "${HOME}/.workspace-configuration/mongo_functions.sh" ]] && . "${HOME}/.workspace-configuration/mongo_functions.sh"
-
-### Set working environment
-cd ${HOME}/mongo
-. python3-venv/bin/activate

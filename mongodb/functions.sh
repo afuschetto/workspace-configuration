@@ -6,30 +6,26 @@
 # * .                         | mongo-send-evergreenpatch
 # * mongo_generate_cr         | mongo-send-codereview
 
-#--variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-    
-function mongo_build_dynamic {
-  ./buildscripts/scons.py \
-    --variables-files=etc/scons/mongodbtoolchain_stable_gcc.vars \
-    --dbg=on \
-    --opt=on \
-    --link-model=dynamic \
-    --ninja generate-ninja \
-    ICECC=icecc \
-    CCACHE=ccache
-  ninja -j200 install-all
+function mongo-configure {
+    ./buildscripts/scons.py \
+	--variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
+	--ninja generate-ninja \
+	--opt=off \
+	--dbg=on \
+	--link-model=dynamic \
+	ICECC=icecc \
+	CCACHE=ccache
 }
 
-function mongo_build_static {
-  ./buildscripts/scons.py \
-    --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-    --dbg=on \
-    --opt=on \
-    --ninja generate-ninja \
-    ICECC=icecc \
-    CCACHE=ccache
-  ninja -j200 install-all
+function mongo-build {
+    ninja -j200 install-all
 }
+
+function mongo-format {
+    ./buildscripts/clang_format.py format-my
+}
+
+##########
 
 function mongo_build_symbols {
   ./buildscripts/scons.py \
@@ -39,10 +35,6 @@ function mongo_build_symbols {
     --modules=compiledb \
     ICECC=icecc \
     CCACHE=ccache
-}
-
-function mongo_format_code {
-  ./buildscripts/clang_format.py format-my
 }
 
 function mongo_run_test {
