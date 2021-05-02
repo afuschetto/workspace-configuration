@@ -91,9 +91,9 @@
 ;;(global-set-key (kbd "C-c c") 'comment-region)
 ;;(global-set-key (kbd "C-c u") 'uncomment-region)
 ;;(global-set-key [f4] 'clang-format-buffer)
-;;(global-set-key [f5] 'toggle-truncate-lines)
-;;(global-set-key [f6] 'whitespace-mode)
-;;(global-set-key [f7] 'delete-trailing-whitespace)
+(global-set-key [f5] 'whitespace-mode)
+(global-set-key [f6] 'toggle-truncate-lines)
+(global-set-key [f7] 'delete-trailing-whitespace)
 ;;(global-set-key [f8] 'next-error)
 
 ;;; Set automatic pair for (, [ and {

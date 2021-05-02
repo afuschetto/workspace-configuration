@@ -1,6 +1,0 @@
-### Set utility functions
-[[ -r "${HOME}/.ws-config/mongodb/functions.sh" ]] && . "${HOME}/.ws-config/mongodb/functions.sh"
-
-### Set working environment
-#cd ${HOME}/mongo
-#. python3-venv/bin/activate

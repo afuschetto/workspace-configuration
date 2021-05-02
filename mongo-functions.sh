@@ -1,41 +1,67 @@
-# TODO: What I need...
-# * mongo_format              | mongo-format-code
-# * mongo_build               | mongo-build
-# * mongo_test                | mongo-test
-# * mongo_generate_symbols ?? |
-# * .                         | mongo-send-evergreenpatch
-# * mongo_generate_cr         | mongo-send-codereview
+###
+### Repository management
+###
+
+function mongo-reset {
+    [ -n "${VIRTUAL_ENV}" ] && deactivate
+    git clean -fdx
+    ccache -C
+
+    python3 -m venv .venv
+    .venv/bin/python3 -m pip install -r buildscripts/requirements.txt
+}
+
+###
+### Build procedures
+###
 
 function mongo-configure {
     ./buildscripts/scons.py \
-	--variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-	--ninja generate-ninja \
-	--opt=off \
-	--dbg=on \
-	--link-model=dynamic \
-	ICECC=icecc \
-	CCACHE=ccache
+        --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
+        --ninja generate-ninja \
+        --opt=off \
+        --dbg=on \
+        --link-model=dynamic \
+        ICECC=icecc \
+        CCACHE=ccache
 }
 
 function mongo-build {
     ninja -j200 install-all
 }
 
+function mongo-clean {
+    ninja -t clean
+    ccache -c
+}
+
+function mongo-index {
+    ./buildscripts/scons.py \
+        --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
+        --modules=compiledb \
+        --opt=off \
+        --dbg=on \
+        ICECC=icecc \
+        CCACHE=ccache
+}
+
 function mongo-format {
     ./buildscripts/clang_format.py format-my
 }
 
+###
+### Local testing
+###
+
+###
+### Code review
+###
+
+
 ##########
 
-function mongo_build_symbols {
-  ./buildscripts/scons.py \
-    --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-    --dbg=on \
-    --opt=on \
-    --modules=compiledb \
-    ICECC=icecc \
-    CCACHE=ccache
-}
+# * .                         | mongo-send-evergreenpatch
+# * mongo_generate_cr         | mongo-send-codereview
 
 function mongo_run_test {
   #if [$# -eq 0]; then
