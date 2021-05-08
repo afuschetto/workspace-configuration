@@ -2,91 +2,131 @@
 ### Repository management
 ###
 
-function mongo-reset {
-    [ -n "${VIRTUAL_ENV}" ] && deactivate
-    git clean -fdx
-    ccache -C
+__mongo-check-workdir ()
+{
+    if [[ ! -d buildscripts ]]; then
+        echo "ERROR: ${PWD} is not a mongo working directory" 1>&2;
+        exit 1;
+    fi
+}
 
-    python3 -m venv .venv
-    .venv/bin/python3 -m pip install -r buildscripts/requirements.txt
+mongo-reset ()
+{
+    ( set -e;
+    __mongo-check-workdir;
+
+    [[ -n ${VIRTUAL_ENV} ]] && deactivate;
+    git clean -fdx;
+    ccache -C;
+
+    \python3 -m venv .venv;
+    .venv/bin/python3 -m pip install -r buildscripts/requirements.txt )
 }
 
 ###
 ### Build procedures
 ###
 
-function mongo-configure {
+# TODO: Add a parameter for --ninja (default) and --no-ninja
+mongo-configure ()
+{
+    ( set -e;
+    __check-mongo-dir;
+
     ./buildscripts/scons.py \
         --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
+        --opt=off \
+        --dbg=on \
         --ninja generate-ninja \
-        --opt=off \
-        --dbg=on \
-        --link-model=dynamic \
         ICECC=icecc \
-        CCACHE=ccache
+        CCACHE=ccache )
 }
 
-function mongo-build {
-    ninja -j200 install-all
+# TODO: Add a parameter for --ninja (default) and --no-ninja
+mongo-build ()
+{
+    ( set -e;
+    __mongo-check-workdir;
+
+    [[ -f build.ninja ]] || mongo-configure;
+    ninja -j400 install-all )
 }
 
-function mongo-clean {
-    ninja -t clean
-    ccache -c
+mongo-clean ()
+{
+    ( set -e;
+    __mongo-check-workdir;
+
+    ninja -t clean;
+    ccache -c )
 }
 
-function mongo-index {
+mongo-index ()
+{
+    ( set -e;
+    __mongo-check-workdir;
+
     ./buildscripts/scons.py \
         --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-        --modules=compiledb \
         --opt=off \
         --dbg=on \
+        --modules=compiledb \
         ICECC=icecc \
-        CCACHE=ccache
+        CCACHE=ccache )
 }
 
-function mongo-format {
-    ./buildscripts/clang_format.py format-my
+mongo-format ()
+{
+    ( set -e;
+    __mongo-check-workdir;
+
+    ./buildscripts/clang_format.py format-my )
 }
 
 ###
 ### Local testing
 ###
 
+# TODO: Require the JS file as mandatory argument
+function mongo-test {( set -e
+    $(__mongo-check-workdir)
+
+    ./buildscripts/resmoke.py run \
+        --storageEngine=wiredTiger \
+        --storageEngineCacheSizeGB=0.5 \
+        --jobs=1 \
+        --log=file \
+        --suite=sharding \
+        $@
+)}
+
+###
+### Remote testing
+###
+
+# TODO: Find a way to automatically set the patch summary including the patch set number
+function mongo-send-evergreenpatch {( set -e
+    $(__mongo-check-workdir)
+
+    evergreen patch \
+        --project mongodb-mongo-master \
+        --finalize
+)}
+
 ###
 ### Code review
 ###
 
+# TODO: Fix stacktrace
+function mongo-send-codereview {( set -e
+    $(__mongo-check-workdir)
 
-##########
-
-# * .                         | mongo-send-evergreenpatch
-# * mongo_generate_cr         | mongo-send-codereview
-
-function mongo_run_test {
-  #if [$# -eq 0]; then
-  #  echo "ERROR - Missing suite name"
-  #  exit 1
-  #fi
-
-  ./buildscripts/resmoke.py run \
-    --mongodSetParameters='{ logComponentVerbosity: {verbosity: 2}, featureFlagToaster: true, featureFlagSpoon: true, featureFlagAuthorizationContract: true, featureFlagTenantMigrations: true, featureFlagImprovedAuditing: true, featureFlagRuntimeAuditConfig: true, featureFlagTimeseriesCollection: true, featureFlagShardingFullDDLSupport: true, featureFlagShardingFullDDLSupportTimestampedVersion: true, featureFlagWindowFunctions: true, featureFlagUseSecondaryDelaySecs: true, featureFlagChangeStreamsOptimization: true }' \
-    --storageEngine=wiredTiger \
-    --storageEngineCacheSizeGB=0.5 \
-    --log=file \
-    --jobs=1 \
-    --suite=sharding \
-    $@
-}
-
-function mongo_code_review {
-  \python3 ~/kernel-tools/codereview/upload.py \
-    --git_similarity=100 \
-    --check-clang-format \
-    --check-eslint \
-    --server "mongodbcr.appspot.com" -H "mongodbcr.appspot.com" \
-    --jira_user "antonio.fuschetto" \
-    --title "$(git log -n 1 --pretty=%B | head -n1)" \
-    --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
-    $@
-}
+    .venv/bin/python3 ${HOME}/support/kernel-tools/codereview/upload.py \
+        --git_similarity=100 \
+        --check-clang-format \
+        --check-eslint \
+        --title "$(git log -n 1 --pretty=%B | head -n1)" \
+        --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
+        --jira_user "antonio.fuschetto" \
+        $@
+)}
