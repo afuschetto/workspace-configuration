@@ -40,7 +40,7 @@ mongo-reset ()
 }
 
 ###
-### Build procedures
+### Build
 ###
 
 # Generate the configuration file required for the distributed build (Ninja
@@ -48,6 +48,7 @@ mongo-reset ()
 # the "mongo-build" command is run. However, this command must be explicitly
 # invoked when a SCons configuration file changes (e.g., after adding or
 # removing a source file from the project).
+# TODO: * What's the ICECC argumet?
 mongo-configure ()
 {
     ( set -e;
@@ -75,6 +76,7 @@ mongo-configure ()
 # Build the mongo project taking care of the environment configuration when
 # needed ("mongo-configure" command) and enabling the distributed build if
 # supported by the branch.
+# TODO: * Validate steps for v4.2 and v4.0
 mongo-build ()
 {
     ( set -e;
@@ -101,6 +103,9 @@ mongo-build ()
     esac )
 }
 
+# Delete all files that are created by the "mongo-build" command (i.e., object
+# and target files). However, do not delete files that record the configuration
+# (e.g., build.ninja).
 mongo-clean ()
 {
     ( set -e;
@@ -125,6 +130,7 @@ mongo-clean ()
     esac )
 }
 
+# TODO: Is it really required?
 mongo-index ()
 {
     ( set -e;
@@ -156,6 +162,8 @@ mongo-index ()
     esac )
 }
 
+# Format the source code according to a company-wide clang-format configuration.
+# TODO: What are the differences between format-my and format?
 mongo-format ()
 {
     ( set -e;
@@ -273,10 +281,10 @@ __mongo-parse-args ()
                 ;;
         esac;
     done;
-    
+
     if [[ ${__mongo_branch} != master && ${__mongo_branch} != v4.4 && ${__mongo_branch} != v4.2 && ${__mongo_branch} != v4.0 ]]; then
         echo "WARNING: ${__mongo_branch} is not a Git origin branch" 1>&2;
-	read -p "Do you want to use the master branch as a reference? [y/N] ";
-	[[ ${REPLY} =~ (y|Y) ]] && __mongo_branch=master || exit 2;
+        read -p "Do you want to use the master branch as a reference? [y/N] ";
+        [[ ${REPLY} =~ (y|Y) ]] && __mongo_branch=master || exit 2;
     fi
 }
