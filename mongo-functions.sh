@@ -3,112 +3,177 @@
 ###
 
 # Reset the working directory to its initial state, as if the repository had
-# just been cloned and its Python virtual environment properly created and
+# just been cloned and its Python virtual environment created and properly
 # initialized.
-#
-# Quality level: Successfully tested with branches 4.4 and higher.
-# TODO: * Add '--use-feature=2020-resolver' argument to the 'pip install'
-#         command as required for branches 4.0 and 4.2.
 mongo-reset ()
 {
     ( set -e;
     __mongo-check-wrkdir;
+    __mongo-parse-args $@;
+
+    echo "WARNING: All uncommitted changes and unversioned files will be lost";
+    read -p "Are you sure you want to proceed? [y/N] ";
+    [[ ${REPLY} =~ (y|Y) ]] || exit 0;
 
     [[ -n ${VIRTUAL_ENV} ]] && deactivate;
-    git clean -fdx;
+    \git clean -fdx;
     ccache -C;
 
-    \python3 -m venv .venv;
-    .venv/bin/python3 -m pip install -r buildscripts/requirements.txt )
+    case ${__mongo_branch} in
+        v4.4 | master)
+            \python3 -m venv .venv;
+            .venv/bin/python3 -m pip install -r buildscripts/requirements.txt
+            ;;
+        v4.2)
+            \python3 -m venv .venv;
+            .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
+            ;;
+        v4.0)
+            \virtualenv -p python2 .venv;
+            .venv/bin/python2 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
+            ;;
+        *)
+            echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
+            exit 1
+            ;;
+    esac )
 }
 
 ###
 ### Build procedures
 ###
 
-# Generate the configuration file required by the Ninja build system. Such
-# configuration is automatically generated or updated when "mongo-build" is run,
-# however this function must be explicitly executed when a SCons configuration
-# file changes (e.g., after adding or removing a source file to the project).
-#
-# Quality level: Successfully tested with branches 4.4 and higher.
-# TODO: * Inhibit the execution for branches 4.0 and 4.2.
+# Generate the configuration file required for the distributed build (Ninja
+# build system. This configuration is automatically generated or updated when
+# the "mongo-build" command is run. However, this command must be explicitly
+# invoked when a SCons configuration file changes (e.g., after adding or
+# removing a source file from the project).
 mongo-configure ()
 {
     ( set -e;
     __mongo-check-wrkdir;
+    __mongo-parse-args $@;
 
-    ./buildscripts/scons.py \
-        --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-        --opt=off \
-        --dbg=on \
-	--link-model=dynamic \
-        --ninja generate-ninja \
-        ICECC=icecc \
-        CCACHE=ccache )
+    case ${__mongo_branch} in
+        v4.4 | master)
+            ./buildscripts/scons.py \
+                --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+                --opt=off \
+                --dbg=on \
+                --link-model=dynamic \
+                --ninja generate-ninja \
+                ICECC=icecc \
+                CCACHE=ccache
+            ;;
+        *)
+            echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
+            exit 1
+            ;;
+    esac )
 }
 
-# Build the mongo project taking care of the environment configuration
-# (mongo-configure) when required.
-#
-# Options:
-#   --ninja:    Leverage the Ninja build system to spread and orchestrate the
-#               build across a large set of hosts. The feature is fully
-#               supported starting with version 4.4 of mongo. This option is
-#               enabled by default.
-#   --no-ninja: Do not take advantage of the Ninja build system and the build
-#               runs only on the local host. This option is mandatory to build
-#               version 4.2 of mongo.
-#
-# Quality level: Successfully tested with branches 4.2 and higher.
-# TODO: * Suppor branch 4.0
+# Build the mongo project taking care of the environment configuration when
+# needed ("mongo-configure" command) and enabling the distributed build if
+# supported by the branch.
 mongo-build ()
 {
     ( set -e;
     __mongo-check-wrkdir;
-
     __mongo-parse-args $@;
-    if ${__use_ninja}; then
-        [[ -f build.ninja ]] || mongo-configure;
-        ninja -j400 install-all;
-    else
-        ./buildscripts/scons.py \
-	    --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-	    --opt=off \
-	    --dbg=on \
-	    ICECC=icecc;
-    fi )
+
+    case ${__mongo_branch} in
+        v4.4 | master)
+            [[ -f build.ninja ]] || mongo-configure $@;
+            ninja -j400 install-all
+            ;;
+        v4.2 | v4.0)
+            ./buildscripts/scons.py \
+                --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+                --opt=off \
+                --dbg=on \
+                ICECC=icecc \
+                mongod mongos
+            ;;
+        *)
+            echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
+            exit 1
+            ;;
+    esac )
 }
 
 mongo-clean ()
 {
     ( set -e;
     __mongo-check-wrkdir;
+    __mongo-parse-args $@;
 
-    ninja -t clean;
-    ccache -c )
+    case ${__mongo_branch} in
+        v4.4 | master)
+            ninja -t clean;
+            ccache -c
+            ;;
+        v4.2 | v4.0)
+            ./buildscripts/scons.py \
+                --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+                --clean \
+                mongod mongos
+            ;;
+        *)
+            echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
+            exit 1
+            ;;
+    esac )
 }
 
 mongo-index ()
 {
     ( set -e;
     __mongo-check-wrkdir;
+    __mongo-parse-args $@;
 
-    ./buildscripts/scons.py \
-        --variables-files=etc/scons/mongodbtoolchain_stable_clang.vars \
-        --opt=off \
-        --dbg=on \
-        --modules=compiledb \
-        ICECC=icecc \
-        CCACHE=ccache )
+    case ${__mongo_branch} in
+        v4.4 | master)
+            ./buildscripts/scons.py \
+                --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+                --opt=off \
+                --dbg=on \
+                --modules=compiledb \
+                ICECC=icecc \
+                CCACHE=ccache
+            ;;
+        v4.2 | v4.0)
+            ./buildscripts/scons.py \
+                --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+                --opt=off \
+                --dbg=on \
+                --modules=compiledb \
+                ICECC=icecc
+            ;;
+        *)
+            echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
+            exit 1
+            ;;
+    esac )
 }
 
 mongo-format ()
 {
     ( set -e;
     __mongo-check-wrkdir;
+    __mongo-parse-args $@;
 
-    ./buildscripts/clang_format.py format-my )
+    case ${__mongo_branch} in
+        v4.4 | master)
+            ./buildscripts/clang_format.py format-my
+            ;;
+        v4.2 | v4.0)
+            ./buildscripts/clang_format.py format
+            ;;
+        *)
+            echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
+            exit 1
+            ;;
+    esac )
 }
 
 ###
@@ -173,21 +238,45 @@ __mongo-check-wrkdir ()
 
 __mongo-parse-args ()
 {
-    __use_ninja=true;
+    __mongo_branch=`git rev-parse --abbrev-ref HEAD`;
+    __toolchain=clang
+
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --ninja)
-                __use_ninja=true;
+            --master)
+                __mongo_branch=master;
                 shift
-            ;;
-            --no-ninja)
-                __use_ninja=false;
+                ;;
+            --v4.4)
+                __mongo_branch=v4.4;
                 shift
-            ;;
+                ;;
+            --v4.2)
+                __mongo_branch=v4.2;
+                shift
+                ;;
+            --v4.0)
+                __mongo_branch=v4.0;
+                shift
+                ;;
+            --clang)
+                __toolchain=clang;
+                shift
+                ;;
+            --gcc)
+                __toolchain=gcc;
+                shift
+                ;;
             *)
                 echo "ERROR: $1 is not a supported parameter" 1>&2;
                 exit 1
-            ;;
+                ;;
         esac;
-    done
+    done;
+    
+    if [[ ${__mongo_branch} != master && ${__mongo_branch} != v4.4 && ${__mongo_branch} != v4.2 && ${__mongo_branch} != v4.0 ]]; then
+        echo "WARNING: ${__mongo_branch} is not a Git origin branch" 1>&2;
+	read -p "Do you want to use the master branch as a reference? [y/N] ";
+	[[ ${REPLY} =~ (y|Y) ]] && __mongo_branch=master || exit 2;
+    fi
 }
