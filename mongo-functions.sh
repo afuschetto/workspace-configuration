@@ -86,7 +86,7 @@ mongo-build ()
     case ${__mongo_branch} in
         v4.4 | master)
             [[ -f build.ninja ]] || mongo-configure $@;
-            ninja -j400 install-all
+            ninja -j400 install-core
             ;;
         v4.2 | v4.0)
             ./buildscripts/scons.py \
@@ -94,7 +94,7 @@ mongo-build ()
                 --opt=off \
                 --dbg=on \
                 ICECC=icecc \
-                mongod mongos
+                core
             ;;
         *)
             echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
@@ -121,7 +121,7 @@ mongo-clean ()
             ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
                 --clean \
-                mongod mongos
+                core
             ;;
         *)
             echo "ERROR: ${__mongo_branch} branch is not supported by this command" 1>&2;
@@ -139,20 +139,14 @@ mongo-index ()
 
     case ${__mongo_branch} in
         v4.4 | master)
-            ./buildscripts/scons.py \
-                --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-                --opt=off \
-                --dbg=on \
-                --modules=compiledb \
-                ICECC=icecc \
-                CCACHE=ccache
+	    ninaj compiledb
             ;;
         v4.2 | v4.0)
             ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
                 --opt=off \
                 --dbg=on \
-                --modules=compiledb \
+                compiledb \
                 ICECC=icecc
             ;;
         *)
@@ -205,31 +199,38 @@ function mongo-test {( set -e
 ### Remote testing
 ###
 
-# TODO: Find a way to automatically set the patch summary including the patch set number
-function mongo-send-evergreenpatch {( set -e
-    $(__mongo-check-wrkdir)
+mongo-send-evergreenpatch ()
+{
+    ( set -e;
+    __mongo-check-wrkdir;
+    __mongo-parse-args $@;
 
     evergreen patch \
-        --project mongodb-mongo-master \
-        --finalize
-)}
+	--project mongodb-mongo-${__mongo_branch} \
+	--description "$(git log -n 1 --pretty=%B | head -n1)" \
+	--finalize \
+	$@ )
+}
 
 ###
 ### Code review
 ###
 
-# TODO: Fix stacktrace
-function mongo-send-codereview {( set -e
-    $(__mongo-check-wrkdir)
+mongo-send-codereview ()
+{
+    ( set -e
+    __mongo-check-wrkdir
+    __mongo-parse-args $@;
 
     .venv/bin/python3 ${HOME}/support/kernel-tools/codereview/upload.py \
-        --git_similarity=100 \
+       	--rev origin/${__mongo_branch} \
+	--git_similarity=100 \
         --check-clang-format \
         --check-eslint \
         --title "$(git log -n 1 --pretty=%B | head -n1)" \
         --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
         --jira_user "antonio.fuschetto" \
-        $@
+	$@
 )}
 
 ###
@@ -275,6 +276,10 @@ __mongo-parse-args ()
                 __toolchain=gcc;
                 shift
                 ;;
+	    -i|--issue) # Option for mongo-send-codereview
+		shift
+		shift
+		;;
             *)
                 echo "ERROR: $1 is not a supported parameter" 1>&2;
                 exit 1
