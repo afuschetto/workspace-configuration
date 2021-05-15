@@ -78,7 +78,7 @@
 ;;(set-face-foreground 'font-lock-comment-face "red")
 ;;(set-face-foreground 'font-lock-comment-delimiter-face "red")
 
-;;; Set Scons mode on files
+;;; Set SCons mode on files
 (setq auto-mode-alist (cons '("SConstruct$" . python-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("SConscript$" . python-mode) auto-mode-alist))
 
@@ -114,3 +114,7 @@
 (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 ;;(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+
+;;; Set Flyspell for spell checking
+(dolist (hook '(text-mode-hook))
+  (add-hook hook (lambda () (flyspell-mode 1))))
