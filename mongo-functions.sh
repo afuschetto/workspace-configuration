@@ -25,7 +25,7 @@ mongo-reset ()
     case ${__mongo_branch} in
         v4.4 | v5.0 | master)
             \python3 -m venv .venv;
-            .venv/bin/python3 -m pip install -r buildscripts/requirements.txt
+            .VENV/bin/python3 -m pip install -r buildscripts/requirements.txt
             ;;
         v4.2)
             \python3 -m venv .venv;
@@ -361,6 +361,19 @@ __mongo-parse-args ()
 ###
 ### Local testing
 ###
+
+# TODO: Require the JS file as mandatory argument
+function mongo-test {( set -e
+    $(__mongo-check-wrkdir)
+
+    ./buildscripts/resmoke.py run \
+        --storageEngine=wiredTiger \
+        --storageEngineCacheSizeGB=0.5 \
+        --jobs=1 \
+        --log=file \
+        --suite=sharding \
+        $@
+)}
 
 ###
 ### Remote testing
