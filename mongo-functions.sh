@@ -70,7 +70,8 @@ __mongo-configure-ninja ()
                 --link-model=dynamic \
                 --ninja generate-ninja \
                 ICECC=icecc \
-                CCACHE=ccache
+                CCACHE=ccache \
+                ${__args[@]}
             ;;
         *)
             echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
@@ -99,7 +100,9 @@ __mongo-configure-ccls ()
 
     case ${__mongo_branch} in
         v4.4 | v5.0 | master)
-            ninja compiledb generated-sources
+            ninja \
+                compiledb generated-sources \
+                ${__args[@]}
             ;;
         v4.2 | v4.0)
             ./buildscripts/scons.py \
@@ -107,7 +110,8 @@ __mongo-configure-ccls ()
                 --opt=off \
                 --dbg=on \
                 ICECC=icecc \
-                compiledb generated-sources
+                compiledb generated-sources \
+                ${__args[@]}
             ;;
         *)
             echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
@@ -154,7 +158,10 @@ mongo-build ()
         v4.4 | v5.0 | master)
             [[ -f build.ninja ]] || __mongo-configure-ninja $@;
             [[ -f compile_commands.json ]] || __mongo-configure-ccls $@;
-            ninja -j400 install-${__target}
+            ninja \
+                -j400 \
+                install-${__target} \
+                ${__args[@]}
             ;;
         v4.2 | v4.0)
             [[ -f compile_commands.json ]] || __mongo-configure-ccls $@;
@@ -163,7 +170,8 @@ mongo-build ()
                 --opt=off \
                 --dbg=on \
                 ICECC=icecc \
-                ${__target}
+                ${__target} \
+                ${__args[@]}
             ;;
         *)
             echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
@@ -229,6 +237,10 @@ mongo-format ()
     esac )
 }
 
+################################################################################
+################################################################################
+################################################################################
+
 ###
 ### Unit tests
 ###
@@ -248,7 +260,7 @@ mongo-verify ()
 
     if [[ $# -lt 1 ]]; then
         echo "ERROR: Missing acceptance test suite to run" 1>&2;
-	echo "Usage: ${FUNCNAME[0]} SUITE";
+        echo "Usage: ${FUNCNAME[0]} SUITE";
         return 1;
     fi
 
@@ -258,7 +270,7 @@ mongo-verify ()
         --storageEngineCacheSizeGB=0.5 \
         --log=file \
         --jobs=${__tasks} \
-        --suite=$@ )
+        ${__args[@])} )
 }
 
 ###
@@ -281,6 +293,7 @@ __mongo-parse-args ()
 {
     [[ -z ${__parsed_args} ]] && __parsed_args=true || return 0;
 
+    __args=()
     __mongo_branch=`git rev-parse --abbrev-ref HEAD`;
     __toolchain=clang
     __target=all
@@ -334,15 +347,13 @@ __mongo-parse-args ()
                 __tasks=`cat /proc/cpuinfo | grep processor | wc -l`
                 shift
                 ;;
-            -i|--issue)
-                shift
-                shift
-                ;;
             *)
-                if [[ $1 == -* ]]; then
-                    echo "ERROR: $1 is not a supported option" 1>&2;
-                    return 1;
-                fi
+                #if [[ $1 == -* ]]; then
+                #    echo "ERROR: $1 is not a supported option" 1>&2;
+                #    return 1;
+                #fi
+                __args+=($1)
+                shift
                 ;;
         esac;
     done;
@@ -388,7 +399,7 @@ mongo-send-evergreenpatch ()
     evergreen patch \
         --project mongodb-mongo-${__mongo_branch} \
         --description "$(git log -n 1 --pretty=%B | head -n 1)" \
-	--finalize )
+        ${__args[@])} )
 }
 
 ###
@@ -402,12 +413,12 @@ mongo-send-codereview ()
     __mongo-parse-args $@;
 
     .venv/bin/python3 ${HOME}/support/kernel-tools/codereview/upload.py \
-	--rev HEAD^:HEAD \
+        --rev HEAD^:HEAD \
         --git_similarity=100 \
         --check-clang-format \
         --check-eslint \
         --title "$(git log -n 1 --pretty=%B | head -n 1)" \
         --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
         --jira_user "antonio.fuschetto" \
-        $@ )
+        ${__args[@])} )
 }
