@@ -25,7 +25,7 @@ mongo-reset ()
     case ${__mongo_branch} in
         v4.4 | v5.0 | master)
             \python3 -m venv .venv;
-            .VENV/bin/python3 -m pip install -r buildscripts/requirements.txt
+            .venv/bin/python3 -m pip install -r buildscripts/requirements.txt
             ;;
         v4.2)
             \python3 -m venv .venv;
@@ -258,11 +258,11 @@ mongo-verify ()
     __mongo-check-wrkdir;
     __mongo-parse-args --master $@;
 
-    if [[ $# -lt 1 ]]; then
-        echo "ERROR: Missing acceptance test suite to run" 1>&2;
-        echo "Usage: ${FUNCNAME[0]} SUITE";
-        return 1;
-    fi
+    #if [[ $# -lt 1 ]]; then
+    #    echo "ERROR: Missing acceptance test suite to run" 1>&2;
+    #    echo "Usage: ${FUNCNAME[0]} SUITE";
+    #    return 1;
+    #fi
 
     \rm -f executor.log fixture.log tests.log
     ./buildscripts/resmoke.py run \
@@ -270,7 +270,7 @@ mongo-verify ()
         --storageEngineCacheSizeGB=0.5 \
         --log=file \
         --jobs=${__tasks} \
-        ${__args[@])} )
+        ${__args[@]} )
 }
 
 ###
@@ -297,7 +297,7 @@ __mongo-parse-args ()
     __mongo_branch=`git rev-parse --abbrev-ref HEAD`;
     __toolchain=clang
     __target=all
-    __tasks=`cat /proc/cpuinfo | grep processor | wc -l`
+    __tasks=1
 
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -399,7 +399,7 @@ mongo-send-evergreenpatch ()
     evergreen patch \
         --project mongodb-mongo-${__mongo_branch} \
         --description "$(git log -n 1 --pretty=%B | head -n 1)" \
-        ${__args[@])} )
+        ${__args[@]} )
 }
 
 ###
@@ -420,5 +420,5 @@ mongo-send-codereview ()
         --title "$(git log -n 1 --pretty=%B | head -n 1)" \
         --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
         --jira_user "antonio.fuschetto" \
-        ${__args[@])} )
+        ${__args[@]} )
 }
