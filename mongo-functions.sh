@@ -7,7 +7,7 @@
 # initialized.
 #
 # Options:
-#   --master, --v4.4, --v4.2, --v4.0
+#   --master, --v5.0, --v4.4, --v4.2, --v4.0
 mongo-reset ()
 {
     ( set -e;
@@ -53,7 +53,7 @@ mongo-reset ()
 # removing a source file) and any existing "build.ninja" file must be updated.
 #
 # Options:
-#   --master, --v4.4, --v4.2, --v4.0
+#   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 __mongo-configure-ninja ()
 {
@@ -90,7 +90,7 @@ __mongo-configure-ninja ()
 # must be updated.
 #
 # Options:
-#   --master, --v4.4, --v4.2, --v4.0
+#   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 __mongo-configure-ccls ()
 {
@@ -128,7 +128,7 @@ __mongo-configure-ccls ()
 # any existing "build.ninja" and "compile_commands.json" files must be updated.
 #
 # Options:
-#   --master, --v4.4, --v4.2, --v4.0
+#   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 mongo-configure ()
 {
@@ -145,7 +145,7 @@ mongo-configure ()
 # (by running the "mongo-configure" command).
 #
 # Options:
-#   --master, --v4.4, --v4.2, --v4.0
+#   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 #   --all, --core
 mongo-build ()
@@ -185,7 +185,7 @@ mongo-build ()
 # configuration (e.g., "build.ninja").
 #
 # Options:
-#   --master, --v4.4, --v4.2, --v4.0
+#   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 #   --all, --core
 mongo-clean ()
@@ -216,7 +216,7 @@ mongo-clean ()
 # configuration.
 #
 # Options:
-#   --master, --v4.4, --v4.2, --v4.0
+#   --master, --v5.0, --v4.4, --v4.2, --v4.0
 mongo-format ()
 {
     ( set -e;
@@ -238,44 +238,67 @@ mongo-format ()
 }
 
 ################################################################################
-################################################################################
-################################################################################
 
 ###
-### Unit tests
-###
-
-###
-### Acceptance tests
+### Local tests
 ###
 
 # Options:
 #   --multi-task, --single-task
-# TODO: The suite name $@ contains other option also... :(
 mongo-verify ()
 {
     ( set -e;
     __mongo-check-wrkdir;
     __mongo-parse-args --master $@;
 
-    #if [[ $# -lt 1 ]]; then
-    #    echo "ERROR: Missing acceptance test suite to run" 1>&2;
-    #    echo "Usage: ${FUNCNAME[0]} SUITE";
-    #    return 1;
-    #fi
-
     \rm -f executor.log fixture.log tests.log
     ./buildscripts/resmoke.py run \
-        --storageEngine=wiredTiger \
+	--storageEngine=wiredTiger \
         --storageEngineCacheSizeGB=0.5 \
+        --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
         --log=file \
         --jobs=${__tasks} \
         ${__args[@]} )
 }
 
 ###
+### Remote tests
+###
+
+mongo-send-evergreenpatch ()
+{
+    ( set -e;
+    __mongo-check-wrkdir;
+    __mongo-parse-args $@;
+
+    evergreen patch \
+        --project mongodb-mongo-${__mongo_branch} \
+        --description "$(git log -n 1 --pretty=%B | head -n 1)" \
+        ${__args[@]} )
+}
+
+###
 ### Code review
 ###
+
+mongo-send-codereview ()
+{
+    ( set -e;
+    __mongo-check-wrkdir;
+    __mongo-parse-args $@;
+
+    .venv/bin/python3 ${HOME}/support/kernel-tools/codereview/upload.py \
+        --rev HEAD^:HEAD \
+        --git_similarity=100 \
+        --check-clang-format \
+        --check-eslint \
+        --title "$(git log -n 1 --pretty=%B | head -n 1)" \
+        --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
+        --jira_user "antonio.fuschetto" \
+        ${__args[@]} )
+}
+
+################################################################################
 
 ###
 ### Utilities
@@ -294,7 +317,7 @@ __mongo-parse-args ()
     [[ -z ${__parsed_args} ]] && __parsed_args=true || return 0;
 
     __args=()
-    __mongo_branch=`git rev-parse --abbrev-ref HEAD`;
+    __mongo_branch=master
     __toolchain=clang
     __target=all
     __tasks=1
@@ -358,67 +381,9 @@ __mongo-parse-args ()
         esac;
     done;
 
-    if [[ ${__mongo_branch} != master && ${__mongo_branch} != v5.0 && ${__mongo_branch} != v4.4 && ${__mongo_branch} != v4.2 && ${__mongo_branch} != v4.0 ]]; then
-        echo "WARNING: ${__mongo_branch} is not a Git origin branch" 1>&2;
-        read -p "Do you want to use the master branch as a reference? [y/N] ";
-        [[ ${REPLY} =~ (y|Y) ]] && __mongo_branch=master || return 2;
-    fi
-}
-
-################################################################################
-################################################################################
-################################################################################
-
-###
-### Local testing
-###
-
-# TODO: Require the JS file as mandatory argument
-function mongo-test {( set -e
-    $(__mongo-check-wrkdir)
-
-    ./buildscripts/resmoke.py run \
-        --storageEngine=wiredTiger \
-        --storageEngineCacheSizeGB=0.5 \
-        --jobs=1 \
-        --log=file \
-        --suite=sharding \
-        $@
-)}
-
-###
-### Remote testing
-###
-
-mongo-send-evergreenpatch ()
-{
-    ( set -e;
-    __mongo-check-wrkdir;
-    __mongo-parse-args $@;
-
-    evergreen patch \
-        --project mongodb-mongo-${__mongo_branch} \
-        --description "$(git log -n 1 --pretty=%B | head -n 1)" \
-        ${__args[@]} )
-}
-
-###
-### Code review
-###
-
-mongo-send-codereview ()
-{
-    ( set -e;
-    __mongo-check-wrkdir;
-    __mongo-parse-args $@;
-
-    .venv/bin/python3 ${HOME}/support/kernel-tools/codereview/upload.py \
-        --rev HEAD^:HEAD \
-        --git_similarity=100 \
-        --check-clang-format \
-        --check-eslint \
-        --title "$(git log -n 1 --pretty=%B | head -n 1)" \
-        --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
-        --jira_user "antonio.fuschetto" \
-        ${__args[@]} )
+    #if [[ ${__mongo_branch} != master && ${__mongo_branch} != v5.0 && ${__mongo_branch} != v4.4 && ${__mongo_branch} != v4.2 && ${__mongo_branch} != v4.0 ]]; then
+    #    echo "WARNING: ${__mongo_branch} is not a Git origin branch" 1>&2;
+    #    read -p "Do you want to use the master branch as a reference? [y/N] ";
+    #    [[ ${REPLY} =~ (y|Y) ]] && __mongo_branch=master || return 2;
+    #fi
 }
