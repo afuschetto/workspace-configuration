@@ -8,7 +8,7 @@
 #
 # Options:
 #   --master, --v5.0, --v4.4, --v4.2, --v4.0
-mongo-reset ()
+mongo-prepare ()
 {
     ( set -e;
     __mongo-check-wrkdir;
@@ -23,11 +23,7 @@ mongo-reset ()
     ccache -C;
 
     case ${__mongo_branch} in
-        v4.4 | v5.0 | master)
-            \python3 -m venv .venv;
-            .venv/bin/python3 -m pip install -r buildscripts/requirements.txt
-            ;;
-        v4.2)
+        v4.2 | v4.4 | v5.0 | master)
             \python3 -m venv .venv;
             .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
             ;;
@@ -295,6 +291,21 @@ mongo-send-codereview ()
         --title "$(git log -n 1 --pretty=%B | head -n 1)" \
         --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
         --jira_user "antonio.fuschetto" \
+        ${__args[@]} )
+}
+
+###
+### Merge
+###
+
+mongo-merge ()
+{
+    ( set -e;
+    __mongo-check-wrkdir;
+    __mongo-parse-args $@;
+
+    evergreen commit-queue merge \
+        --project mongodb-mongo-${__mongo_branch} \
         ${__args[@]} )
 }
 
