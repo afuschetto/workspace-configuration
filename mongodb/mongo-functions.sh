@@ -23,7 +23,7 @@ mongo-prepare ()
     ccache -C;
 
     case ${__mongo_branch} in
-        v4.2 | v4.4 | v5.0 | master)
+	v4.2 | v4.4 | v5.0 | master)
             \python3 -m venv .venv;
             .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
             ;;
@@ -51,6 +51,8 @@ mongo-prepare ()
 # Options:
 #   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
+#   --debug, --release
+#   --dynamic, --static
 __mongo-configure-ninja ()
 {
     ( set -e;
@@ -61,9 +63,8 @@ __mongo-configure-ninja ()
         v4.4 | v5.0 | master)
             ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-                --opt=off \
-                --dbg=on \
-                --link-model=dynamic \
+                ${__mode} \
+                ${__linking} \
                 --ninja generate-ninja \
                 ICECC=icecc \
                 CCACHE=ccache \
@@ -88,6 +89,7 @@ __mongo-configure-ninja ()
 # Options:
 #   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
+#   --debug, --release
 __mongo-configure-ccls ()
 {
     ( set -e;
@@ -103,8 +105,7 @@ __mongo-configure-ccls ()
         v4.2 | v4.0)
             ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-                --opt=off \
-                --dbg=on \
+                ${__mode} \
                 ICECC=icecc \
                 compiledb generated-sources \
                 ${__args[@]}
@@ -126,6 +127,8 @@ __mongo-configure-ccls ()
 # Options:
 #   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
+#   --debug, --release
+#   --dynamic, --static
 mongo-configure ()
 {
     ( set -e;
@@ -143,6 +146,8 @@ mongo-configure ()
 # Options:
 #   --master, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
+#   --debug, --release
+#   --dynamic, --static
 #   --all, --core
 mongo-build ()
 {
@@ -159,12 +164,11 @@ mongo-build ()
                 install-${__target} \
                 ${__args[@]}
             ;;
-        v4.2 | v4.0)
+        v4.0 | v4.2)
             [[ -f compile_commands.json ]] || __mongo-configure-ccls $@;
             ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-                --opt=off \
-                --dbg=on \
+                ${__mode} \
                 ICECC=icecc \
                 ${__target} \
                 ${__args[@]}
@@ -195,7 +199,7 @@ mongo-clean ()
             ninja -t clean;
             ccache -c
             ;;
-        v4.2 | v4.0)
+        v4.0 | v4.2)
             ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
                 --clean \
@@ -223,7 +227,7 @@ mongo-format ()
         v4.4 | v5.0 | master)
             ./buildscripts/clang_format.py format-my
             ;;
-        v4.2 | v4.0)
+        v4.0 | v4.2)
             ./buildscripts/clang_format.py format
             ;;
         *)
@@ -240,22 +244,43 @@ mongo-format ()
 ###
 
 # Options:
-#   --multi-task, --single-task
+#   --single-task, --multi-task
+mongo-verify-tee ()
+{
+    ( set -e;
+    __mongo-check-wrkdir;
+    __mongo-parse-args --master $@;
+
+    \rm -f executor.log fixture.log tests.log;
+    ./buildscripts/resmoke.py run \
+	--storageEngine=wiredTiger \
+        --storageEngineCacheSizeGB=0.5 \
+        --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
+        --jobs=${__tasks} \
+        ${__args[@]} ) \
+	| tee tests.log
+}
+
+# Options:
+#   --single-task, --multi-task
 mongo-verify ()
 {
     ( set -e;
     __mongo-check-wrkdir;
     __mongo-parse-args --master $@;
 
-    \rm -f executor.log fixture.log tests.log
+    \rm -f executor.log fixture.log tests.log;
+    set +e;
     ./buildscripts/resmoke.py run \
 	--storageEngine=wiredTiger \
         --storageEngineCacheSizeGB=0.5 \
         --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
-        --log=file \
         --jobs=${__tasks} \
-        ${__args[@]} )
+	--log=file \
+        ${__args[@]};
+    [[ $? == 0 ]] && echo -e '>> \e[0;32mPASSED\e[0m <<' || echo -e '>> \e[0;31mFAILED\e[0m <<' )
 }
+
 
 ###
 ### Remote tests
@@ -291,6 +316,7 @@ mongo-send-codereview ()
         --title "$(git log -n 1 --pretty=%B | head -n 1)" \
         --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
         --jira_user "antonio.fuschetto" \
+	--no_oauth2_webbrowser \
         ${__args[@]} )
 }
 
@@ -309,6 +335,18 @@ mongo-merge ()
         ${__args[@]} )
 }
 
+mongo-echo ()
+{
+    ( set -e;
+    __mongo-parse-args $@;
+
+    echo __mongo_branch=${__mongo_branch}
+    echo __toolchain=${__toolchain}
+    echo __mode=${__mode}
+    echo __linking=${__linking}
+    echo __target=${__target}
+    echo __tasks=${__tasks} )
+}
 ################################################################################
 
 ###
@@ -330,6 +368,8 @@ __mongo-parse-args ()
     __args=()
     __mongo_branch=master
     __toolchain=clang
+    __mode='--opt=off --dbg=on'
+    __linking='--link-model=dynamic'
     __target=all
     __tasks=1
 
@@ -348,7 +388,6 @@ __mongo-parse-args ()
                 __mongo_branch=v4.4;
                 shift
                 ;;
-
             --v4.2)
                 __mongo_branch=v4.2;
                 shift
@@ -365,6 +404,22 @@ __mongo-parse-args ()
                 __toolchain=gcc;
                 shift
                 ;;
+	    --debug)
+		__mode='--opt=off --dbg=on'
+		shift
+		;;
+	    --release)
+		__mode='--opt=on --dbg=off'
+		shift
+		;;
+	    --dynamic)
+		__linking='--link-model=dynamic'
+		shift
+		;;
+	    --static)
+		__linking='--link-model=static'
+		shift
+		;;
             --all)
                 __target=all;
                 shift
