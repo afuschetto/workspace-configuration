@@ -247,25 +247,7 @@ mongo-format ()
 
 # Options:
 #   --single-task, --multi-task
-mongo-verify-tee ()
-{
-    ( set -e;
-    __mongo-check-wrkdir;
-    __mongo-parse-args --master $@;
-
-    \rm -f executor.log fixture.log tests.log;
-    ./buildscripts/resmoke.py run \
-	--storageEngine=wiredTiger \
-        --storageEngineCacheSizeGB=0.5 \
-        --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
-        --jobs=${__tasks} \
-        ${__args[@]} ) \
-	| tee tests.log
-}
-
-# Options:
-#   --single-task, --multi-task
-mongo-verify ()
+mongo-test-locally ()
 {
     ( set -e;
     __mongo-check-wrkdir;
@@ -283,12 +265,30 @@ mongo-verify ()
     [[ $? == 0 ]] && echo -e '>> \e[0;32mPASSED\e[0m <<' || echo -e '>> \e[0;31mFAILED\e[0m <<' )
 }
 
+# Options:
+#   --single-task, --multi-task
+mongo-verify-tee ()
+{
+    ( set -e;
+    __mongo-check-wrkdir;
+    __mongo-parse-args --master $@;
+
+    ${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
+    ${__cmd_prefix} ./buildscripts/resmoke.py run \
+	--storageEngine=wiredTiger \
+        --storageEngineCacheSizeGB=0.5 \
+        --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
+        --jobs=${__tasks} \
+        ${__args[@]} ) \
+	| tee tests.log
+}
+
 
 ###
 ### Remote tests
 ###
 
-mongo-send-evergreenpatch ()
+mongo-test-remotely ()
 {
     ( set -e;
     __mongo-check-wrkdir;
@@ -297,43 +297,6 @@ mongo-send-evergreenpatch ()
     ${__cmd_prefix} evergreen patch \
         --project mongodb-mongo-${__mongo_branch} \
         --description "$(git log -n 1 --pretty=%B | head -n 1)" \
-        ${__args[@]} )
-}
-
-###
-### Code review
-###
-
-mongo-send-codereview ()
-{
-    ( set -e;
-    __mongo-check-wrkdir;
-    __mongo-parse-args $@;
-
-    .venv/bin/python3 ${HOME}/support/kernel-tools/codereview/upload.py \
-        --rev HEAD^:HEAD \
-        --git_similarity=100 \
-        --check-clang-format \
-        --check-eslint \
-        --title "$(git log -n 1 --pretty=%B | head -n 1)" \
-        --cc "codereview-mongo@10gen.com,serverteam-sharding-emea@mongodb.com" \
-        --jira_user "antonio.fuschetto" \
-	--no_oauth2_webbrowser \
-        ${__args[@]} )
-}
-
-###
-### Merge
-###
-
-mongo-merge ()
-{
-    ( set -e;
-    __mongo-check-wrkdir;
-    __mongo-parse-args $@;
-
-    evergreen commit-queue merge \
-        --project mongodb-mongo-${__mongo_branch} \
         ${__args[@]} )
 }
 
