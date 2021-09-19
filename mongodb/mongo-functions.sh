@@ -3,8 +3,8 @@
 ###
 
 # Reset the working directory to its initial state, as if the repository had
-# just been cloned and its Python virtual environment created and properly
-# initialized.
+# just been cloned and its virtual Python environment created with all project
+# requirements.
 #
 # Options:
 #   --master, --v5.0, --v4.4, --v4.2, --v4.0
@@ -14,22 +14,24 @@ mongo-prepare ()
     __mongo-check-wrkdir;
     __mongo-parse-args $@;
 
-    echo "WARNING: All uncommitted changes and unversioned files will be lost";
-    read -p "Are you sure you want to proceed? [y/N] ";
-    [[ ${REPLY} =~ (y|Y) ]] || return 0;
+    if [[ ${__cmd_prefix} != echo ]]; then
+	echo "WARNING: All uncommitted changes and unversioned files will be lost";
+	read -p "Are you sure you want to proceed? [y/N] ";
+	[[ ${REPLY} =~ (y|Y) ]] || return 0;
+    fi
 
-    [[ -n ${VIRTUAL_ENV} ]] && deactivate;
-    \git clean -fdx;
-    ccache -C;
+    [[ -n ${VIRTUAL_ENV} ]] && ${__cmd_prefix} deactivate;
+    ${__cmd_prefix} \git clean -fdx;
+    ${__cmd_prefix} ccache -C;
 
     case ${__mongo_branch} in
 	v4.2 | v4.4 | v5.0 | master)
-            \python3 -m venv .venv;
-            .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
+            ${__cmd_prefix} \python3 -m venv .venv;
+            ${__cmd_prefix} .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
             ;;
         v4.0)
-            \virtualenv -p python2 .venv;
-            .venv/bin/python2 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
+            ${__cmd_prefix} \virtualenv -p python2 .venv;
+            ${__cmd_prefix} .venv/bin/python2 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
             ;;
         *)
             echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
@@ -61,10 +63,10 @@ __mongo-configure-ninja ()
 
     case ${__mongo_branch} in
         v4.4 | v5.0 | master)
-            ./buildscripts/scons.py \
+            ${__cmd_prefix} ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-                ${__mode} \
-                ${__linking} \
+                ${__build_mode} \
+                ${__link_model} \
                 --ninja generate-ninja \
                 ICECC=icecc \
                 CCACHE=ccache \
@@ -98,14 +100,14 @@ __mongo-configure-ccls ()
 
     case ${__mongo_branch} in
         v4.4 | v5.0 | master)
-            ninja \
+            ${__cmd_prefix} ninja \
                 compiledb generated-sources \
                 ${__args[@]}
             ;;
         v4.2 | v4.0)
-            ./buildscripts/scons.py \
+            ${__cmd_prefix} ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-                ${__mode} \
+                ${__build_mode} \
                 ICECC=icecc \
                 compiledb generated-sources \
                 ${__args[@]}
@@ -159,16 +161,16 @@ mongo-build ()
         v4.4 | v5.0 | master)
             [[ -f build.ninja ]] || __mongo-configure-ninja $@;
             [[ -f compile_commands.json ]] || __mongo-configure-ccls $@;
-            ninja \
+            ${__cmd_prefix} ninja \
                 -j400 \
                 install-${__target} \
                 ${__args[@]}
             ;;
         v4.0 | v4.2)
             [[ -f compile_commands.json ]] || __mongo-configure-ccls $@;
-            ./buildscripts/scons.py \
+            ${__cmd_prefix} ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-                ${__mode} \
+                ${__build_mode} \
                 ICECC=icecc \
                 ${__target} \
                 ${__args[@]}
@@ -196,11 +198,11 @@ mongo-clean ()
 
     case ${__mongo_branch} in
         v4.4 | v5.0 | master)
-            ninja -t clean;
-            ccache -c
+            ${__cmd_prefix} ninja -t clean;
+            ${__cmd_prefix} ccache -c
             ;;
         v4.0 | v4.2)
-            ./buildscripts/scons.py \
+            ${__cmd_prefix} ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
                 --clean \
                 ${__target}
@@ -225,10 +227,10 @@ mongo-format ()
 
     case ${__mongo_branch} in
         v4.4 | v5.0 | master)
-            ./buildscripts/clang_format.py format-my
+            ${__cmd_prefix} ./buildscripts/clang_format.py format-my
             ;;
         v4.0 | v4.2)
-            ./buildscripts/clang_format.py format
+            ${__cmd_prefix} ./buildscripts/clang_format.py format
             ;;
         *)
             echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
@@ -269,9 +271,9 @@ mongo-verify ()
     __mongo-check-wrkdir;
     __mongo-parse-args --master $@;
 
-    \rm -f executor.log fixture.log tests.log;
+    ${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
     set +e;
-    ./buildscripts/resmoke.py run \
+    ${__cmd_prefix} ./buildscripts/resmoke.py run \
 	--storageEngine=wiredTiger \
         --storageEngineCacheSizeGB=0.5 \
         --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
@@ -292,7 +294,7 @@ mongo-send-evergreenpatch ()
     __mongo-check-wrkdir;
     __mongo-parse-args $@;
 
-    evergreen patch \
+    ${__cmd_prefix} evergreen patch \
         --project mongodb-mongo-${__mongo_branch} \
         --description "$(git log -n 1 --pretty=%B | head -n 1)" \
         ${__args[@]} )
@@ -340,12 +342,14 @@ mongo-echo ()
     ( set -e;
     __mongo-parse-args $@;
 
+    echo __cmd_prefix=${__cmd_prefix}
     echo __mongo_branch=${__mongo_branch}
     echo __toolchain=${__toolchain}
-    echo __mode=${__mode}
-    echo __linking=${__linking}
+    echo __build_mode=${__build_mode}
+    echo __link_model=${__link_model}
     echo __target=${__target}
-    echo __tasks=${__tasks} )
+    echo __tasks=${__tasks}
+    echo __args=${__args} )
 }
 
 ################################################################################
@@ -366,16 +370,21 @@ __mongo-parse-args ()
 {
     [[ -z ${__parsed_args} ]] && __parsed_args=true || return 0;
 
-    __args=()
+    __cmd_prefix=
     __mongo_branch=master
     __toolchain=clang
-    __mode='--opt=off --dbg=on'
-    __linking='--link-model=dynamic'
+    __build_mode='--opt=off --dbg=on'
+    __link_model='--link-model=dynamic'
     __target=all
     __tasks=1
+    __args=()
 
     while [[ $# -gt 0 ]]; do
         case $1 in
+	    --echo)
+		__cmd_prefix=echo;
+		shift
+		;;
             --master)
                 __mongo_branch=master;
                 shift
@@ -406,19 +415,19 @@ __mongo-parse-args ()
                 shift
                 ;;
 	    --debug)
-		__mode='--opt=off --dbg=on'
+		__build_mode='--opt=off --dbg=on'
 		shift
 		;;
 	    --release)
-		__mode='--opt=on --dbg=off'
+		__build_mode='--opt=on --dbg=off'
 		shift
 		;;
 	    --dynamic)
-		__linking='--link-model=dynamic'
+		__link_model='--link-model=dynamic'
 		shift
 		;;
 	    --static)
-		__linking='--link-model=static'
+		__link_model='--link-model=static'
 		shift
 		;;
             --all)
