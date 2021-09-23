@@ -1,0 +1,69 @@
+{
+    "files.exclude": {
+        "buildscripts/": true,
+        "debian/": true,
+        "distsrc/": true,
+        "etc/": true,
+        "evergreen/": true,
+        "rpm/": true,
+        "site_scons/": true,
+        "src/third_party/": true,
+        ".ccls-cache/": true,
+        "build.ninja": true,
+        "compile_commands.json": true,
+        "resmoke.ini": true
+    },
+    "files.watcherExclude": {
+        "buildscripts/": true,
+        "debian/": true,
+        "distsrc/": true,
+        "etc/": true,
+        "evergreen/": true,
+        "rpm/": true,
+        "site_scons/": true,
+        "src/third_party/": true,
+        ".ccls-cache/": true,
+        "build.ninja": true,
+        "compile_commands.json": true,
+        "resmoke.ini": true
+    },
+    "search.exclude": {
+        "buildscripts/": true,
+        "debian/": true,
+        "distsrc/": true,
+        "etc/": true,
+        "evergreen/": true,
+        "rpm/": true,
+        "site_scons/": true,
+        "src/third_party/": true,
+        ".ccls-cache/": true,
+        "build.ninja": true,
+        "compile_commands.json": true,
+        "resmoke.ini": true
+    },
+    "editor.rulers": [
+        100
+    ],
+    "files.associations": {
+        "*.idl": "yaml"
+    },
+    "C_Cpp.autocomplete": "Disabled",
+    "C_Cpp.formatting": "Disabled",
+    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.intelliSenseEngine": "Disabled",
+    "cSpell.words": [
+        "BSON",
+        "BSONOBJ",
+        "DLEVEL",
+        "FCVP",
+        "LOGV",
+        "UNSHARDED",
+        "Unreplicated",
+        "dassert",
+        "fassert",
+        "tassert",
+        "uassert",
+        "sharded",
+        "shardsvr"
+    ]
+}

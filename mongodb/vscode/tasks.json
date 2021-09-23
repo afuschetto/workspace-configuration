@@ -1,0 +1,35 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "mongo-build",
+            "args": [
+                "--all"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Build all artifacts"
+        },
+        {
+            "label": "format",
+            "type": "shell",
+            "command": "mongo-forma",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "detail": "Format code according to MongoDB's coding style"
+        }
+    ]
+}
