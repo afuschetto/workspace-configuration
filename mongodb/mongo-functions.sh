@@ -283,7 +283,6 @@ mongo-verify-tee ()
 	| tee tests.log
 }
 
-
 ###
 ### Remote tests
 ###
@@ -297,6 +296,21 @@ mongo-test-remotely ()
     ${__cmd_prefix} evergreen patch \
         --project mongodb-mongo-${__mongo_branch} \
         --description "$(git log -n 1 --pretty=%B | head -n 1)" \
+        ${__args[@]} )
+}
+
+###
+### Merge
+###
+
+mongo-merge ()
+{
+    ( set -e;
+    __mongo-check-wrkdir;
+    __mongo-parse-args $@;
+
+    ${__cmd_prefix} evergreen commit-queue merge \
+        --project mongodb-mongo-${__mongo_branch} \
         ${__args[@]} )
 }
 
