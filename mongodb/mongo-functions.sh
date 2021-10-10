@@ -7,7 +7,7 @@
 # requirements.
 #
 # Options:
-#   --master, --v5.0, --v4.4, --v4.2, --v4.0
+#   --master, --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
 mongo-prepare ()
 {
     ( set -e;
@@ -25,7 +25,7 @@ mongo-prepare ()
     ${__cmd_prefix} ccache -C;
 
     case ${__mongo_branch} in
-	v4.2 | v4.4 | v5.0 | master)
+	v4.2 | v4.4 | v5.0 | v5.1 | master)
             ${__cmd_prefix} \python3 -m venv .venv;
             ${__cmd_prefix} .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
             ;;
@@ -51,7 +51,7 @@ mongo-prepare ()
 # removing a source file) and any existing "build.ninja" file must be updated.
 #
 # Options:
-#   --master, --v5.0, --v4.4, --v4.2, --v4.0
+#   --master, --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 #   --debug, --release
 #   --dynamic, --static
@@ -62,7 +62,17 @@ __mongo-configure-ninja ()
     __mongo-parse-args $@;
 
     case ${__mongo_branch} in
-        v4.4 | v5.0 | master)
+	master)
+            ${__cmd_prefix} ./buildscripts/scons.py \
+                --variables-files=etc/scons/mongodbtoolchain_v4_${__toolchain}.vars \
+                ${__build_mode} \
+                ${__link_model} \
+                --ninja generate-ninja \
+                ICECC=icecc \
+                CCACHE=ccache \
+                ${__args[@]}
+            ;;
+        v4.4 | v5.0 | v5.1)
             ${__cmd_prefix} ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
                 ${__build_mode} \
@@ -72,10 +82,10 @@ __mongo-configure-ninja ()
                 CCACHE=ccache \
                 ${__args[@]}
             ;;
-        *)
-            echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
-            return 1
-            ;;
+        #*)
+        #    echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
+        #    return 1
+        #    ;;
     esac )
 }
 
@@ -89,7 +99,7 @@ __mongo-configure-ninja ()
 # must be updated.
 #
 # Options:
-#   --master, --v5.0, --v4.4, --v4.2, --v4.0
+#   --master, --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 #   --debug, --release
 __mongo-configure-ccls ()
@@ -99,12 +109,12 @@ __mongo-configure-ccls ()
     __mongo-parse-args $@;
 
     case ${__mongo_branch} in
-        v4.4 | v5.0 | master)
+        v4.4 | v5.0 | v5.1 | master)
             ${__cmd_prefix} ninja \
                 compiledb generated-sources \
                 ${__args[@]}
             ;;
-        v4.2 | v4.0)
+        v4.0 | v4.2)
             ${__cmd_prefix} ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
                 ${__build_mode} \
@@ -127,7 +137,7 @@ __mongo-configure-ccls ()
 # any existing "build.ninja" and "compile_commands.json" files must be updated.
 #
 # Options:
-#   --master, --v5.0, --v4.4, --v4.2, --v4.0
+#   --master, --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 #   --debug, --release
 #   --dynamic, --static
@@ -146,7 +156,7 @@ mongo-configure ()
 # (by running the "mongo-configure" command).
 #
 # Options:
-#   --master, --v5.0, --v4.4, --v4.2, --v4.0
+#   --master, --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 #   --debug, --release
 #   --dynamic, --static
@@ -158,7 +168,7 @@ mongo-build ()
     __mongo-parse-args $@;
 
     case ${__mongo_branch} in
-        v4.4 | v5.0 | master)
+        v4.4 | v5.0 | v5.1 | master)
             [[ -f build.ninja ]] || __mongo-configure-ninja $@;
             [[ -f compile_commands.json ]] || __mongo-configure-ccls $@;
             ${__cmd_prefix} ninja \
@@ -187,7 +197,7 @@ mongo-build ()
 # configuration (e.g., "build.ninja").
 #
 # Options:
-#   --master, --v5.0, --v4.4, --v4.2, --v4.0
+#   --master, --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
 #   --clang, --gcc
 #   --all, --core
 mongo-clean ()
@@ -197,7 +207,7 @@ mongo-clean ()
     __mongo-parse-args $@;
 
     case ${__mongo_branch} in
-        v4.4 | v5.0 | master)
+        v4.4 | v5.0 | v5.1 | master)
             ${__cmd_prefix} ninja -t clean;
             ${__cmd_prefix} ccache -c
             ;;
@@ -218,7 +228,7 @@ mongo-clean ()
 # configuration.
 #
 # Options:
-#   --master, --v5.0, --v4.4, --v4.2, --v4.0
+#   --master, --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
 mongo-format ()
 {
     ( set -e;
@@ -226,7 +236,7 @@ mongo-format ()
     __mongo-parse-args $@;
 
     case ${__mongo_branch} in
-        v4.4 | v5.0 | master)
+        v4.4 | v5.0 | v5.1 | master)
             ${__cmd_prefix} ./buildscripts/clang_format.py format-my
             ;;
         v4.0 | v4.2)
@@ -366,11 +376,14 @@ __mongo-parse-args ()
                 __mongo_branch=master;
                 shift
                 ;;
+            --v5.1)
+                __mongo_branch=v5.1;
+                shift
+                ;;
             --v5.0)
                 __mongo_branch=v5.0;
                 shift
                 ;;
-
             --v4.4)
                 __mongo_branch=v4.4;
                 shift
@@ -415,7 +428,7 @@ __mongo-parse-args ()
                 __target=core;
                 shift
                 ;;
-            --single-task)
+            --mono-task)
                 __tasks=1
                 shift
                 ;;
