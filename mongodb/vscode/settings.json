@@ -149,7 +149,7 @@
     "C_Cpp.autocomplete": "Disabled",
     "C_Cpp.formatting": "Disabled",
     "C_Cpp.errorSquiggles": "Disabled",
-    //"C_Cpp.intelliSenseEngine": "Disabled",
+    "C_Cpp.intelliSenseEngine": "Disabled",
     "cSpell.words": [
         "BSON",
         "BSONOBJ",
