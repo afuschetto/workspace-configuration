@@ -1,43 +1,17 @@
-###
-### Machine-specific configuration
-###
+### Set personal Linux settings
+. ~/.ws-config/personal/bashrc_mac
 
+### Set general environment settings
+export PATH=~/bin:${PATH}
+export PS1="\[\e[0;31m\][\u@devel-ws:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 '(%s)')\[\e[0;31m\]\$\[\e[0m\] "
+. ~/.ws-config/personal/virtualenv-auto-activate.sh
+
+### Set MongoDB's development settings
+export PATH=~/devel/bin:/opt/mongodbtoolchain/v4/bin:${PATH}
+. ~/.ws-config/mongodb/mongo-functions.sh
 export LC_ALL="C"
 ulimit -v 65011712
 ulimit -n 64000
 ulimit -u 64000
 ulimit -l 1024
 ulimit -c unlimited
-
-###
-### MongoDB-specific configuration
-###
-
-export PATH=/opt/mongodbtoolchain/v3/bin:${PATH}
-#export PATH=/opt/node/bin:${PATH}
-#export PATH=/opt/go/bin:${PATH}
-#export GOROOT=/opt/go
-
-#export UNDO_user='antonio.fuschetto'
-#alias udb='/opt/undodb5/bin/udb --undodb-gdb-exe /opt/mongodbtoolchain/gdb/bin/gdb'
-#alias gdb='/opt/mongodbtoolchain/gdb/bin/gdb'
-#export JIRA_USERNAME=antonio.fuschetto
-#source ${HOME}/support/server-workflow-tool/server_bashrc.sh
-
-###
-### User-specific configuration
-###
-
-### Binaries
-export PATH=${HOME}/bin:${PATH}
-#export PATH=${HOME}/bin/python-3.9.7/bin:${PATH}
-#export PATH=${HOME}/bin/clang+llvm-9.0.1/bin:${PATH}
-
-### Terminal
-. ${HOME}/.ws-config/personal/bashrc_lnx
-export PS1='\[\e[0;31m\][\u@devel-ws:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
-. ${HOME}/.ws-config/personal/virtualenv-auto-activate.sh
-
-### MongoDB
-export PATH=${HOME}/devel/bin:${PATH}
-. ${HOME}/.ws-config/mongodb/mongo-functions.sh
