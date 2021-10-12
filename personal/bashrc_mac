@@ -2,7 +2,7 @@
 . ~/.ws-config/personal/bashrc_lnx
 
 ### Set general environment settings
-export PS1="\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]$(__git_ps1 '(%s)')\[\e[0;32m\]\$\[\e[0m\] "
+export PS1='\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;32m\]\$\[\e[0m\] '
 
 ### Set Homebrew bash completion
 [[ -r /usr/local/etc/profile.d/bash_completion.sh ]] && . /usr/local/etc/profile.d/bash_completion.sh
