@@ -1,5 +1,5 @@
 ### Set personal Linux settings
-. ~/.ws-config/personal/bashrc_mac
+. ~/.ws-config/personal/bashrc_lnx
 
 ### Set general environment settings
 export PATH=~/bin:${PATH}
