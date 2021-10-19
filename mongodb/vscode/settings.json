@@ -153,17 +153,18 @@
     "cSpell.words": [
         "BSON",
         "BSONOBJ",
-        "DLEVEL",
-        "FCVP",
-        "LOGV",
-        "UNSHARDED",
-        "Unreplicated",
         "dassert",
+        "DLEVEL",
         "fassert",
+        "FCVP",
+        "logd",
+        "LOGV",
+        "sharded",
+        "shardsvr",
         "tassert",
         "uassert",
-        "sharded",
-        "shardsvr"
+        "Unreplicated",
+        "UNSHARDED"
     ],
     "python.linting.pylintEnabled": true
 }
