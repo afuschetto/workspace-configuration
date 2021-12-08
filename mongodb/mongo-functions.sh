@@ -167,6 +167,8 @@ mongo-build ()
     __mongo-check-wrkdir;
     __mongo-parse-args $@;
 
+    [[ ${__format} == 1 ]] && ${__cmd_prefix} mongo-format ${__mongo_branch}
+
     case ${__mongo_branch} in
         v4.4 | v5.0 | v5.1 | master)
             [[ -f build.ninja ]] || __mongo-configure-ninja $@;
@@ -303,9 +305,19 @@ mongo-test-remotely ()
     __mongo-check-wrkdir;
     __mongo-parse-args $@;
 
+
+    msg=$(git log -n 1 --pretty=%B | head -n 1)
+    if [[ ${__cmd_prefix} != echo ]]; then
+	echo ${msg}
+	read -p "Do you want to use this title for the Evergreen patch? [y/N] ";
+	if [[ ${REPLY} =~ (n|N) ]]; then
+	    read -p "Type the custom title: " msg
+	fi
+    fi
+
     ${__cmd_prefix} evergreen patch \
         --project mongodb-mongo-${__mongo_branch} \
-        --description "$(git log -n 1 --pretty=%B | head -n 1)" \
+        --description "$(git branch --show-current; echo $msg)" \
         ${__args[@]} )
 }
 
@@ -324,7 +336,7 @@ mongo-merge ()
         ${__args[@]} )
 }
 
-mongo-echo ()
+mongo-debug ()
 {
     ( set -e;
     __mongo-parse-args $@;
@@ -334,6 +346,7 @@ mongo-echo ()
     echo __toolchain=${__toolchain}
     echo __build_mode=${__build_mode}
     echo __link_model=${__link_model}
+    echo __format=${__format}
     echo __target=${__target}
     echo __tasks=${__tasks}
     echo __args=${__args} )
@@ -362,6 +375,7 @@ __mongo-parse-args ()
     __toolchain=clang
     __build_mode='--opt=off --dbg=on'
     __link_model='--link-model=dynamic'
+    __format=1
     __target=all
     __tasks=1
     __args=()
@@ -420,7 +434,15 @@ __mongo-parse-args ()
 		__link_model='--link-model=static'
 		shift
 		;;
-            --all)
+	    --format)
+		__format=1
+		shift
+		;;
+	    --no-format)
+		__format=0
+		shift
+		;;
+	    --all)
                 __target=all;
                 shift
                 ;;
