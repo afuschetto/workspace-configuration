@@ -157,14 +157,24 @@
         "DLEVEL",
         "fassert",
         "FCVP",
+        "jstests",
         "logd",
         "LOGV",
+        "multiversion",
+        "Noops",
+        "Oplog",
+        "optimes",
         "sharded",
         "shardsvr",
+        "stmts",
         "tassert",
+        "Txns",
         "uassert",
+        "uasserted",
         "Unreplicated",
-        "UNSHARDED"
+        "UNSHARDED",
+        "upserted",
+        "wuow"
     ],
     "python.linting.pylintEnabled": true
 }
