@@ -7,7 +7,7 @@ export PS1='\[\e[0;31m\][\u@devel-ws:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__
 . ~/.ws-config/personal/virtualenv-auto-activate.sh
 
 ### Set MongoDB's development settings
-export PATH=~/devel/bin:/opt/mongodbtoolchain/v4/bin:${PATH}
+export PATH=~/devel/bin:/opt/mongodbtoolchain/v4/bin:/opt/nodejs/node-v8.11.3-linux-x64/bin:${PATH}
 . ~/.ws-config/mongodb/mongo-functions.sh
 export LC_ALL='C'
 ulimit -v 65011712
