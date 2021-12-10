@@ -15,9 +15,9 @@ mongo-prepare ()
     __mongo-parse-args $@;
 
     if [[ ${__cmd_prefix} != echo ]]; then
-	echo "WARNING: All uncommitted changes and unversioned files will be lost";
-	read -p "Are you sure you want to proceed? [y/N] ";
-	[[ ${REPLY} =~ (y|Y) ]] || return 0;
+        echo "WARNING: All uncommitted changes and unversioned files will be lost";
+        read -p "Are you sure you want to proceed? [y/N] ";
+        [[ ${REPLY} =~ (y|Y) ]] || return 0;
     fi
 
     [[ -n ${VIRTUAL_ENV} ]] && ${__cmd_prefix} deactivate;
@@ -25,7 +25,7 @@ mongo-prepare ()
     ${__cmd_prefix} ccache -C;
 
     case ${__mongo_branch} in
-	v4.2 | v4.4 | v5.0 | v5.1 | master)
+        v4.2 | v4.4 | v5.0 | v5.1 | master)
             ${__cmd_prefix} \python3 -m venv .venv;
             ${__cmd_prefix} .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
             ;;
@@ -55,6 +55,7 @@ mongo-prepare ()
 #   --clang, --gcc
 #   --debug, --release
 #   --dynamic, --static
+#   --format, --no-format
 __mongo-configure-ninja ()
 {
     ( set -e;
@@ -62,7 +63,7 @@ __mongo-configure-ninja ()
     __mongo-parse-args $@;
 
     case ${__mongo_branch} in
-	master)
+        master)
             ${__cmd_prefix} ./buildscripts/scons.py \
                 --variables-files=etc/scons/mongodbtoolchain_v4_${__toolchain}.vars \
                 ${__build_mode} \
@@ -268,11 +269,11 @@ mongo-test-locally ()
     ${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
     set +e;
     ${__cmd_prefix} ./buildscripts/resmoke.py run \
-	--storageEngine=wiredTiger \
+        --storageEngine=wiredTiger \
         --storageEngineCacheSizeGB=0.5 \
         --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
         --jobs=${__tasks} \
-	--log=file \
+        --log=file \
         ${__args[@]};
     [[ $? == 0 ]] && echo -e '>> \e[0;32mPASSED\e[0m <<' || echo -e '>> \e[0;31mFAILED\e[0m <<' )
 }
@@ -287,12 +288,12 @@ mongo-verify-tee ()
 
     ${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
     ${__cmd_prefix} ./buildscripts/resmoke.py run \
-	--storageEngine=wiredTiger \
+        --storageEngine=wiredTiger \
         --storageEngineCacheSizeGB=0.5 \
         --mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
         --jobs=${__tasks} \
         ${__args[@]} ) \
-	| tee tests.log
+        | tee tests.log
 }
 
 ###
@@ -305,19 +306,19 @@ mongo-test-remotely ()
     __mongo-check-wrkdir;
     __mongo-parse-args $@;
 
-
     msg=$(git log -n 1 --pretty=%B | head -n 1)
     if [[ ${__cmd_prefix} != echo ]]; then
-	echo ${msg}
-	read -p "Do you want to use this title for the Evergreen patch? [y/N] ";
-	if [[ ${REPLY} =~ (n|N) ]]; then
-	    read -p "Type the custom title: " msg
-	fi
+        echo ${msg}
+        read -p "Do you want to use this title for the Evergreen patch? [Y/n] ";
+        if [[ ${REPLY} =~ (n|N) ]]; then
+            read -p "Type the custom title: " msg
+        fi
     fi
 
     ${__cmd_prefix} evergreen patch \
         --project mongodb-mongo-${__mongo_branch} \
-        --description "$(git branch --show-current; echo $msg)" \
+        --skip_confirm \
+        --description "$(git branch --show-current) ${msg}" \
         ${__args[@]} )
 }
 
@@ -382,10 +383,10 @@ __mongo-parse-args ()
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-	    --echo)
-		__cmd_prefix=echo;
-		shift
-		;;
+            --echo)
+                __cmd_prefix=echo;
+                shift
+                ;;
             --master)
                 __mongo_branch=master;
                 shift
@@ -418,31 +419,31 @@ __mongo-parse-args ()
                 __toolchain=gcc;
                 shift
                 ;;
-	    --debug)
-		__build_mode='--opt=off --dbg=on'
-		shift
-		;;
-	    --release)
-		__build_mode='--opt=on --dbg=off'
-		shift
-		;;
-	    --dynamic)
-		__link_model='--link-model=dynamic'
-		shift
-		;;
-	    --static)
-		__link_model='--link-model=static'
-		shift
-		;;
-	    --format)
-		__format=1
-		shift
-		;;
-	    --no-format)
-		__format=0
-		shift
-		;;
-	    --all)
+            --debug)
+                __build_mode='--opt=off --dbg=on'
+                shift
+                ;;
+            --release)
+                __build_mode='--opt=on --dbg=off'
+                shift
+                ;;
+            --dynamic)
+                __link_model='--link-model=dynamic'
+                shift
+                ;;
+            --static)
+                __link_model='--link-model=static'
+                shift
+                ;;
+            --format)
+                __format=1
+                shift
+                ;;
+            --no-format)
+                __format=0
+                shift
+                ;;
+            --all)
                 __target=all;
                 shift
                 ;;
