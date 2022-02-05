@@ -1,0 +1,14 @@
+###
+### Experimental conversion from mongo/bashrc_lnx
+###
+
+### Set general environment settings
+path=(~/bin $path)
+
+### Set MongoDB's development settings
+path=(~/devel/bin /opt/mongodbtoolchain/v4/bin /opt/nodejs/node-v8.11.3-linux-x64/bin $path)
+ulimit -v 65011712
+ulimit -n 64000
+ulimit -u 64000
+ulimit -l 1024
+ulimit -c unlimited
