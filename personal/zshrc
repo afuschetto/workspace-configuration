@@ -127,8 +127,5 @@ alias less="less -RS"
 alias emacs="emacs -nw"
 alias e="emacs"
 
-### Set Git completition
-. ~/.ws-config/personal/git-completion.zsh
-
 ### Set fzf (command-line fuzzy finder)
 [[ -f ~/.fzf.zsh ]] && . ~/.fzf.zsh
