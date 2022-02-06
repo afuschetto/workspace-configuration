@@ -11,14 +11,18 @@ shopt -s histappend
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
 ### Set Git prompt functions
-. ~/.ws-config/personal/git-prompt.sh
+. ~/.config/workspace/personal/git-prompt.sh
 
 ### Set Git completition
-. ~/.ws-config/personal/git-completion.bash
+. ~/.config/workspace/personal/git-completion.bash
 
 ### Set general environment settings
 export CLICOLOR=1
-export PS1='\[\e[0;31m\][\u@\h:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
+if [[ -r $(brew --prefix oh-my-posh)/bin/oh-my-posh ]]; then
+  eval "$(oh-my-posh --init --shell bash --config ~/.config/workspace/personal/oh-my-posh.omp.json)"
+else
+  export PS1='\[\e[0;31m\][\u@\h:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
+fi
 export EDITOR=emacs
 
 ### Set aliases
