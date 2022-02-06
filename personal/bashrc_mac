@@ -2,7 +2,8 @@
 . ~/.ws-config/personal/bashrc_lnx
 
 ### Set general environment settings
-export PS1='\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;32m\]\$\[\e[0m\] '
+eval "$(oh-my-posh --init --shell bash --config ~/.ws-config/personal/oh-my-posh.omp.json)"
+#export PS1='\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;32m\]\$\[\e[0m\] '
 
 ### Set aliases
 unalias ls

@@ -1,6 +1,0 @@
-###
-### Experimental conversion from personal/bashrc_mac
-###
-
-### Set personal Linux settings
-. ~/.ws-config/personal/zshrc_lnx
