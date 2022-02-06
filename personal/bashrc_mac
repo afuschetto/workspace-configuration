@@ -2,9 +2,7 @@
 . ~/.config/workspace/personal/bashrc_lnx
 
 ### Set general environment settings
-if [[ ! -r $(brew --prefix oh-my-posh)/bin/oh-my-posh ]]; then
-  export PS1='\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;32m\]\$\[\e[0m\] '
-fi
+#export PS1='\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;32m\]\$\[\e[0m\] '
 
 ### Set aliases
 unalias ls
