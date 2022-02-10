@@ -1,7 +1,7 @@
-# Resets the local repository to its initial state (as if it had just been
-# cloned) and creates a virtual Python environment with all the requirements
-# installed. All uncommitted changes and unversioned files will be lost (subject
-# to confirmation by the user).
+# Resets the working tree to its initial state (as if it had just been cloned)
+# and creates a virtual Python environment with all the requirements installed.
+# All uncommitted changes and unversioned files will be lost (subject to
+# confirmation by the user).
 #
 # Options:
 #   - Branch: --master (default), --v5.1, --v5.0, --v4.4, --v4.2, --v4.0
