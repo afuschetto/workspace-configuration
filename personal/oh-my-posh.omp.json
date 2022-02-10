@@ -89,7 +89,7 @@
         {
           "foreground": "#ffffff",
           "properties": {
-            "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}\u276f</> "
+            "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}\u276f\u276f</> "
           },
           "style": "plain",
           "type": "text"
