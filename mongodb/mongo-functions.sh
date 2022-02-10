@@ -189,8 +189,8 @@ mongo-test-locally ()
 	--mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
 	--jobs=${__tasks} \
 	--log=file \
-	${__args[@]};
-    [[ $? == 0 ]] && echo -e '>> \e[0;32mPASSED\e[0m <<' || echo -e '>> \e[0;31mFAILED\e[0m <<' )
+	${__args[@]} )
+    #[[ $? == 0 ]] && echo -e '>> \e[0;32mPASSED\e[0m <<' || echo -e '>> \e[0;31mFAILED\e[0m <<' )
 }
 
 # Creates a new Evergreen path where it is possible to select the specific
