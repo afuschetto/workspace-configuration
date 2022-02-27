@@ -12,7 +12,7 @@
           "background": "#9a348e",
           "foreground": "#ffffff",
           "properties": {
-            "template": " {{ .UserName }}@{{ .HostName }} "
+            "template": "{{ if .SSHSession }}(SSH) {{ end }}{{ .UserName }}@{{ .HostName }}"
           }
         },
         {
