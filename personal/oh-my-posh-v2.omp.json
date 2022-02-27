@@ -1,0 +1,94 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "blocks": [
+    {
+      "alignment": "left",
+      "segments": [
+        {
+          "type": "session",
+          "style": "diamond",
+          "leading_diamond": "\ue0b2",
+          "trailing_diamond": "\ue0b0",
+          "background": "#9a348e",
+          "foreground": "#ffffff",
+          "properties": {
+            "template": " {{ .UserName }}@{{ .HostName }} "
+          }
+        },
+        {
+          "type": "path",
+          "style": "diamond",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "trailing_diamond": "\ue0b0",
+          "background": "#0080ff",
+          "foreground": "#ffffff",
+          "properties": {
+            "style": "full",
+            "template": " {{ .Path }} "
+          }
+        },
+        {
+          "type": "git",
+          "style": "diamond",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "trailing_diamond": "\ue0b0",
+          "background": "#c19c00",
+          "foreground": "#193549",
+          "properties": {
+            "fetch_stash_count": true,
+            "fetch_status": true,
+            "fetch_upstream_icon": true,
+            "template": " {{ .HEAD }}{{ .BranchStatus }} \ue0b1{{ if .Working.Changed }} {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} \ue0b1{{ end }}{{ if .Staging.Changed }} {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} {{ .StashCount }}{{ end }} "
+          }
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "right",
+      "segments": [
+        {
+          "type": "python",
+          "style": "diamond",
+          "leading_diamond": "\ue0b2",
+          "trailing_diamond": "<transparent,background>\ue0b2</>",
+          "foreground": "#100e23",
+          "background": "#906cff",
+          "properties": {
+            "template": " \uE235  {{ .Full }} "
+          }
+        },
+        {
+          "type": "time",
+          "style": "diamond",
+          "leading_diamond": "\ue0b2",
+          "trailing_diamond": "\ue0b0",
+          "background": "#2e9599",
+          "foreground": "#ffffff",
+          "properties": {
+            "template": " {{ .CurrentDate | date .Format }} ",
+            "time_format": "15:04:05"
+          }
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "foreground": "#ffffff",
+          "properties": {
+            "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}\u276f\u276f</> "
+          },
+          "style": "plain",
+          "type": "text"
+        }
+      ],
+      "type": "prompt"
+    }
+  ],
+  "console_title_style": "folder",
+  "version": 1
+}
