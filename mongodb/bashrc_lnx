@@ -14,5 +14,6 @@ ulimit -u 64000
 ulimit -l 1024
 ulimit -c unlimited
 . ~/.config/workspace/mongodb/mongo-functions.sh
-export PATH=~/.local/bin:~/devel/bin:/opt/mongodbtoolchain/v4/bin:/opt/nodejs/node-v8.11.3-linux-x64/bin:${PATH}
+export PATH=~/.local/bin:~/devel/bin:/opt/mongodbtoolchain/v3/bin:/opt/nodejs/node-v8.11.3-linux-x64/bin:${PATH}
 export NINJA_STATUS='[%f/%t (%p) %es] '
+alias mrlog='mrlog --id --color'
