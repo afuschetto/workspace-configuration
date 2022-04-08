@@ -1,9 +1,6 @@
 ### Set personal Linux settings
 . ~/.config/workspace/personal/bashrc_lnx
 
-### Set general environment settings
-#export PS1='\[\e[0;32m\][\u@\h:\[\e[0;33m\]\w\[\e[0;32m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;32m\]\$\[\e[0m\] '
-
 ### Set aliases
 unalias ls
 
@@ -12,5 +9,5 @@ unalias ls
 
 ### Set Python 3.9 interpreter
 if [[ -d /Library/Frameworks/Python.framework/Versions/3.9/bin ]]; then
-   export PATH=/Library/Frameworks/Python.framework/Versions/3.9/bin:${PATH}
+	export PATH=/Library/Frameworks/Python.framework/Versions/3.9/bin:${PATH}
 fi
