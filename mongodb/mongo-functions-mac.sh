@@ -201,9 +201,9 @@ __mongo-parse-args ()
 
 	__cmd_prefix=;
 	__build_mode='--opt=off --dbg=on';
-	__link_model='--link-model=static';
+	__link_model='--link-model=dynamic';
 	__format=1;
-	__target=core;
+	__target=all;
 	__tasks=1;
 	__args=();
 
