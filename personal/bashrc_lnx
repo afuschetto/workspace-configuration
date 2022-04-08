@@ -19,7 +19,7 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 ### Set general environment settings
 export CLICOLOR=1
 #export PS1='\[\e[0;31m\][\u@\h:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
-eval "$(oh-my-posh --init --shell bash --config ~/.config/workspace/personal/oh-my-posh-v2.omp.json)"
+eval "$(oh-my-posh --init --shell bash --config ~/.config/workspace/personal/oh-my-posh-v3.omp.json)"
 export EDITOR=emacs
 
 ### Set aliases
