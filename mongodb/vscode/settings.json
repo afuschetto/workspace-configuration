@@ -150,6 +150,7 @@
     "C_Cpp.formatting": "Disabled",
     "C_Cpp.errorSquiggles": "Disabled",
     "C_Cpp.intelliSenseEngine": "Disabled",
+    "clangd.path": "/opt/mongodbtoolchain/v4/bin/clangd",
     "cSpell.words": [
         "BSON",
         "BSONOBJ",
