@@ -1,5 +1,5 @@
 # Resets the working tree to its initial state (as if it had just been cloned)
-# and creates a virtual Python environment with all the requirements installed.
+# and creates a Python virtual environment with all the requirements installed.
 # All uncommitted changes and unversioned files will be lost (subject to
 # confirmation by the user).
 mongo-prepare ()
@@ -18,9 +18,9 @@ mongo-prepare ()
 	${__cmd_prefix} \git clean -fdx;
 	${__cmd_prefix} ccache -C;
 
-	${__cmd_prefix} \python3 -m venv .venv;
-	${__cmd_prefix} . .venv/bin/activate;
-	${__cmd_prefix} .venv/bin/python3 -m pip install -r buildscripts/requirements.txt )
+	${__cmd_prefix} \python3 -m venv ${MONGO_VENV_DIRNAME};
+	${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
+	${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt )
 }
 
 # Generates the `build.ninja` and `compile_commands.json` files, which are
@@ -98,6 +98,7 @@ mongo-format ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
+	__mongo-check-venv;
 	__mongo-parse-args $@;
 
 	${__cmd_prefix} ./buildscripts/clang_format.py format-my )
@@ -114,6 +115,7 @@ mongo-test-locally ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
+	__mongo-check-venv;
 	__mongo-parse-args --master $@;
 
 	${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
@@ -184,7 +186,13 @@ mongo-debug ()
 ################################################################################
 
 ###
-### Internal
+### Global settings
+###
+
+MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
+
+###
+### Internal functions
 ###
 
 __mongo-check-wrkdir ()
@@ -192,6 +200,19 @@ __mongo-check-wrkdir ()
 	if [[ ! -d buildscripts ]]; then
 		echo "ERROR: ${PWD} is not a mongo working directory" 1>&2;
 		return 1;
+	fi
+}
+
+__mongo-check-venv ()
+{
+	if [[ -z ${VIRTUAL_ENV} ]]; then
+		if [[ -d ./${MONGO_VENV_DIRNAME} ]]; then
+			echo "WARNING: Implicit activation of Python virtual environment";
+			. ${MONGO_VENV_DIRNAME}/bin/activate;
+		else
+			echo "ERROR: No Python virtual environment to activate" 1>&2;
+			return 1;
+		fi
 	fi
 }
 
@@ -265,6 +286,7 @@ __mongo-configure-ninja ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
+	__mongo-check-venv;
 	__mongo-parse-args $@;
 
 	${__cmd_prefix} ./buildscripts/scons.py \

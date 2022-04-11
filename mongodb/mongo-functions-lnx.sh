@@ -1,5 +1,5 @@
 # Resets the working tree to its initial state (as if it had just been cloned)
-# and creates a virtual Python environment with all the requirements installed.
+# and creates a Python virtual environment with all the requirements installed.
 # All uncommitted changes and unversioned files will be lost (subject to
 # confirmation by the user).
 #
@@ -23,14 +23,14 @@ mongo-prepare ()
 
 	case ${__mongo_branch} in
 		v4.2 | v4.4 | v5.0 | v5.3 | master)
-			${__cmd_prefix} \python3 -m venv .venv;
-			${__cmd_prefix} . .venv/bin/activate;
-			${__cmd_prefix} .venv/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
+			${__cmd_prefix} \python3 -m venv ${MONGO_VENV_DIRNAME};
+			${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
+			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
 		;;
 		v4.0)
-			${__cmd_prefix} \virtualenv -p python2 .venv;
-			${__cmd_prefix} . .venv/bin/activate;
-			${__cmd_prefix} .venv/bin/python2 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
+			${__cmd_prefix} \virtualenv -p python2 ${MONGO_VENV_DIRNAME};
+			${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
+			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python2 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
 		;;
 		*)
 			echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
@@ -95,8 +95,9 @@ mongo-build ()
 		;;
 		v4.0 | v4.2)
 			[[ -f compile_commands.json ]] || __mongo-configure-compilation-db $@;
+			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
 					${__build_mode} \
 					ICECC=icecc \
 					generated-sources \
@@ -132,8 +133,9 @@ mongo-clean ()
 			${__cmd_prefix} ccache -c
 		;;
 		v4.0 | v4.2)
+			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
 					--clean \
 					${__target}
 		;;
@@ -154,6 +156,7 @@ mongo-format ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
+	__mongo-check-venv;
 	__mongo-parse-args $@;
 
 	case ${__mongo_branch} in
@@ -181,6 +184,7 @@ mongo-test-locally ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
+	__mongo-check-venv;
 	__mongo-parse-args --master $@;
 
 	${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
@@ -253,7 +257,14 @@ mongo-debug ()
 ################################################################################
 
 ###
-### Internal
+### Global settings
+###
+
+MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
+MONGO_TOOLCHAIN_VER=${MONGO_TOOLCHAIN_VER:-'v3'}
+
+###
+### Internal functions
 ###
 
 __mongo-check-wrkdir ()
@@ -261,6 +272,19 @@ __mongo-check-wrkdir ()
 	if [[ ! -d buildscripts ]]; then
 		echo "ERROR: ${PWD} is not a mongo working directory" 1>&2;
 		return 1;
+	fi
+}
+
+__mongo-check-venv ()
+{
+	if [[ -z ${VIRTUAL_ENV} ]]; then
+		if [[ -d ./${MONGO_VENV_DIRNAME} ]]; then
+			echo "WARNING: Implicit activation of Python virtual environment";
+			. ${MONGO_VENV_DIRNAME}/bin/activate;
+		else
+			echo "ERROR: No Python virtual environment to activate" 1>&2;
+			return 1;
+		fi
 	fi
 }
 
@@ -374,22 +398,13 @@ __mongo-configure-ninja ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
+	__mongo-check-venv;
 	__mongo-parse-args $@;
 
 	case ${__mongo_branch} in
-		master)
+		v4.4 | v5.0 | v5.3 | master)
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
-					${__build_mode} \
-					${__link_model} \
-					--ninja generate-ninja \
-					ICECC=icecc \
-					CCACHE=ccache \
-					${__args[@]}
-		;;
-		v4.4 | v5.0 | v5.3)
-			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
 					${__build_mode} \
 					${__link_model} \
 					--ninja generate-ninja \
@@ -417,8 +432,9 @@ __mongo-configure-compilation-db ()
 					${__args[@]}
 		;;
 		v4.0 | v4.2)
+			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
 					${__build_mode} \
 					ICECC=icecc \
 					compiledb \
