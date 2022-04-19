@@ -279,7 +279,7 @@ __mongo-check-venv ()
 {
 	if [[ -z ${VIRTUAL_ENV} ]]; then
 		if [[ -d ./${MONGO_VENV_DIRNAME} ]]; then
-			echo "WARNING: Implicit activation of Python virtual environment";
+			echo "NOTE: Implicit activation of Python virtual environment";
 			. ${MONGO_VENV_DIRNAME}/bin/activate;
 		else
 			echo "ERROR: No Python virtual environment to activate" 1>&2;
