@@ -8,5 +8,5 @@
         }
     },
     "terminal.integrated.defaultProfile.linux": "bash",
-    "clangd.path": "/opt/mongodbtoolchain/v4/bin/clangd"
+    "clangd.path": "/home/ubuntu/bin/clangd"
 }
