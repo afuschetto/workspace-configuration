@@ -4,7 +4,7 @@
 # confirmation by the user).
 #
 # Options:
-#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2, --v4.0
+#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2
 mongo-prepare ()
 {
 	( set -e;
@@ -27,11 +27,6 @@ mongo-prepare ()
 			${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
 			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
 		;;
-		v4.0)
-			${__cmd_prefix} \virtualenv -p python2 ${MONGO_VENV_DIRNAME};
-			${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
-			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python2 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
-		;;
 		*)
 			echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
 			return 1
@@ -48,7 +43,7 @@ mongo-prepare ()
 # `compile_commands.json` files must be recreated.
 #
 # Options:
-#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2, --v4.0
+#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
@@ -68,7 +63,7 @@ mongo-configure ()
 # files are also formatted before being compiled.
 #
 # Options:
-#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2, --v4.0
+#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
@@ -93,7 +88,7 @@ mongo-build ()
 					install-${__target} \
 					${__args[@]}
 		;;
-		v4.0 | v4.2)
+		v4.2)
 			[[ -f compile_commands.json ]] || __mongo-configure-compilation-db $@;
 			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
@@ -117,7 +112,7 @@ mongo-build ()
 # `compile_commands.json`).
 #
 # Options:
-#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2, --v4.0
+#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2
 #   - Compiler family: --clang (default), --gcc
 #   - Executables to delete: --all (default), --core
 #   - All those of buildscripts/scons.py
@@ -132,7 +127,7 @@ mongo-clean ()
 			${__cmd_prefix} ninja -t clean;
 			${__cmd_prefix} ccache -c
 		;;
-		v4.0 | v4.2)
+		v4.2)
 			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
 					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
@@ -150,7 +145,7 @@ mongo-clean ()
 # teams.
 #
 # Options:
-#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2, --v4.0
+#   - Branch: --master (default), --v5.3, --v5.0, --v4.4, --v4.2
 #   - All those of buildscripts/clang_format.py
 mongo-format ()
 {
@@ -163,7 +158,7 @@ mongo-format ()
 		v4.4 | v5.0 | v5.3 | master)
 			${__cmd_prefix} ./buildscripts/clang_format.py format-my
 		;;
-		v4.0 | v4.2)
+		v4.2)
 			${__cmd_prefix} ./buildscripts/clang_format.py format
 		;;
 		*)
@@ -328,10 +323,6 @@ __mongo-parse-args ()
 				__mongo_branch=v4.2;
 				shift
 			;;
-			--v4.0)
-				__mongo_branch=v4.0;
-				shift
-			;;
 			--clang)
 				__toolchain=clang;
 				shift
@@ -387,7 +378,7 @@ __mongo-parse-args ()
 		esac;
 	done;
 
-	# if [[ ${__mongo_branch} != master && ${__mongo_branch} != v5.0 && ${__mongo_branch} != v4.4 && ${__mongo_branch} != v4.2 && ${__mongo_branch} != v4.0 ]]; then
+	# if [[ ${__mongo_branch} != master && ${__mongo_branch} != v5.0 && ${__mongo_branch} != v4.4 && ${__mongo_branch} != v4.2 ]]; then
 	# 	echo "WARNING: ${__mongo_branch} is not a Git origin branch" 1>&2;
 	# 	read -p "Do you want to use the master branch as a reference? [y/N] ";
 	# 	[[ ${REPLY} =~ (y|Y) ]] && __mongo_branch=master || return 2;
@@ -431,7 +422,7 @@ __mongo-configure-compilation-db ()
 					compiledb \
 					${__args[@]}
 		;;
-		v4.0 | v4.2)
+		v4.2)
 			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
 					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
