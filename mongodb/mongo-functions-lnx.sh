@@ -216,7 +216,7 @@ mongo-test-remotely ()
 	${__cmd_prefix} evergreen patch \
 			--project mongodb-mongo-${__mongo_branch} \
 			--skip_confirm \
-			--description "$(git branch --show-current) ${msg}" \
+			--description "$(git rev-parse --abbrev-ref HEAD) ${msg}" \
 			${__args[@]} )
 }
 
