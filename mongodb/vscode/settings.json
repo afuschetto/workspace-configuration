@@ -44,20 +44,28 @@
     "files.associations": {
         "*.idl": "yaml"
     },
+    "editor.defaultFormatter": "xaver.clang-format",
+    "[cpp, javascript]": {
+        "editor.defaultFormatter": "xaver.clang-format"
+    },
     "cSpell.words": [
         "BSON",
         "BSONOBJ",
+        "Configsvr",
         "dassert",
         "DLEVEL",
         "fassert",
         "FCVP",
+        "invokable",
         "jstests",
+        "Killable",
         "logd",
         "LOGV",
         "multiversion",
         "Noops",
         "Oplog",
         "optimes",
+        "retryable",
         "sharded",
         "shardsvr",
         "stmts",
