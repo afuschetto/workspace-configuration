@@ -5,71 +5,66 @@
       "alignment": "left",
       "segments": [
         {
-          "type": "time",
-          "style": "diamond",
-          "leading_diamond": "\ue0b2",
-          "trailing_diamond": "\ue0b0",
           "background": "#2e9599",
           "foreground": "#ffffff",
+          "leading_diamond": "\ue0b2",
           "properties": {
-            "template": " {{ .CurrentDate | date .Format }} ",
             "time_format": "15:04:05"
-          }
+          },
+          "style": "diamond",
+          "template": " {{ .CurrentDate | date .Format }} ",
+          "trailing_diamond": "\ue0b0",
+          "type": "time"
         },
         {
-          "type": "session",
-          "style": "diamond",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
-          "trailing_diamond": "\ue0b0",
           "background": "#9a348e",
           "foreground": "#ffffff",
-          "properties": {
-            "template": "{{ if .SSHSession }} (SSH){{ end }} {{ .UserName }}@{{ .HostName }} "
-          }
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "style": "diamond",
+          "template": "{{ if .SSHSession }} (SSH){{ end }} {{ .UserName }}@{{ .HostName }} ",
+          "trailing_diamond": "\ue0b0",
+          "type": "session"
         },
         {
-          "type": "path",
-          "style": "diamond",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
-          "trailing_diamond": "\ue0b0",
           "background": "#0080ff",
           "foreground": "#ffffff",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
           "properties": {
-            "style": "full",
-            "template": " {{ .Path }} "
-          }
+            "style": "full"
+          },
+          "style": "diamond",
+          "template": " {{ .Path }} ",
+          "trailing_diamond": "\ue0b0",
+          "type": "path"
         },
         {
-          "type": "git",
-          "style": "diamond",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
-          "trailing_diamond": "\ue0b0",
           "background": "#c19c00",
           "foreground": "#193549",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
           "properties": {
             "fetch_stash_count": true,
             "fetch_status": true,
-            "fetch_upstream_icon": true,
-            "template": " {{ .HEAD }}{{ .BranchStatus }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \uf692 {{ .StashCount }}{{ end }} "
-          }
+            "fetch_upstream_icon": true
+          },
+          "style": "diamond",
+          "template": " {{ .HEAD }}{{ .BranchStatus }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \uf692 {{ .StashCount }}{{ end }} ",
+          "trailing_diamond": "\ue0b0",
+          "type": "git"
         },
         {
-          "type": "python",
-          "style": "diamond",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
-          "trailing_diamond": "\ue0b0",
-          "foreground": "#100e23",
           "background": "#906cff",
-          "properties": {
-            "template": " {{ .Full }} "
-          }
+          "foreground": "#100e23",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "style": "diamond",
+          "template": " {{ .Full }} ",
+          "trailing_diamond": "\ue0b0",
+          "type": "python"
         }
       ],
       "type": "prompt"
     },
     {
       "alignment": "right",
-      "segments": [],
       "type": "prompt"
     },
     {
@@ -78,16 +73,13 @@
       "segments": [
         {
           "foreground": "#ffffff",
-          "properties": {
-            "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}\u276f\u276f</> "
-          },
           "style": "plain",
+          "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}\u276f\u276f</> ",
           "type": "text"
         }
       ],
       "type": "prompt"
     }
   ],
-  "console_title_style": "folder",
-  "version": 1
+  "version": 2
 }
