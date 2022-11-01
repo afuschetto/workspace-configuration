@@ -244,6 +244,15 @@ mongo-merge ()
 			${__args[@]} )
 }
 
+mongo-monitor-buildnodes ()
+{
+	( set -e;
+	__mongo-parse-args $@;
+
+	${__cmd_prefix} icecream-sundae -s ${MONGO_ICECREAM_HOSTNAME}
+	)
+}
+
 mongo-debug ()
 {
 	( set -e;
@@ -268,6 +277,7 @@ mongo-debug ()
 
 MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
 MONGO_TOOLCHAIN_VER=${MONGO_TOOLCHAIN_VER:-'v3'}
+MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd.production.build.10gen.cc'}
 
 ###
 ### Internal functions
