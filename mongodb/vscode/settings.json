@@ -1,4 +1,17 @@
 {
+    "search.exclude": {
+        "buildscripts/": true,
+        "debian/": true,
+        "distsrc/": true,
+        "etc/": true,
+        "evergreen/": true,
+        "rpm/": true,
+        "site_scons/": true,
+        "src/third_party/": true,
+        "build.ninja": true,
+        "compile_commands.json": true,
+        "resmoke.ini": true
+    },
     "files.exclude": {
         "buildscripts/": true,
         "debian/": true,
@@ -25,28 +38,14 @@
         "compile_commands.json": true,
         "resmoke.ini": true
     },
-    "search.exclude": {
-        "buildscripts/": true,
-        "debian/": true,
-        "distsrc/": true,
-        "etc/": true,
-        "evergreen/": true,
-        "rpm/": true,
-        "site_scons/": true,
-        "src/third_party/": true,
-        "build.ninja": true,
-        "compile_commands.json": true,
-        "resmoke.ini": true
-    },
     "editor.rulers": [
         100
     ],
-    "files.associations": {
-        "*.idl": "yaml"
-    },
-    "editor.defaultFormatter": "xaver.clang-format",
     "[cpp, javascript]": {
         "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "files.associations": {
+        "*.idl": "yaml"
     },
     "cSpell.words": [
         "BSON",
