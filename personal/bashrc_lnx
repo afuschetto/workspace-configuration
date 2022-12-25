@@ -18,7 +18,7 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 
 ### Set general environment settings
 export CLICOLOR=1
-eval "$(oh-my-posh --init --shell bash --config ~/.config/workspace/personal/oh-my-posh-v3.omp.json.bak)"
+eval "$(oh-my-posh --init --shell bash --config ~/.config/workspace/personal/oh-my-posh-v3.omp.json)"
 export EDITOR=emacs
 
 ### Set aliases
