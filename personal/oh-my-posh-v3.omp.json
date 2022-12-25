@@ -12,6 +12,7 @@
             "time_format": "15:04:05"
           },
           "style": "diamond",
+          "template": " {{ .CurrentDate | date .Format }} ",
           "trailing_diamond": "\ue0b0",
           "type": "time"
         },
@@ -20,6 +21,7 @@
           "foreground": "#ffffff",
           "leading_diamond": "<transparent,background>\ue0b0</>",
           "style": "diamond",
+          "template": "{{ if .SSHSession }} (SSH){{ end }} {{ .UserName }}@{{ .HostName }} ",
           "trailing_diamond": "\ue0b0",
           "type": "session"
         },
@@ -31,6 +33,7 @@
             "style": "full"
           },
           "style": "diamond",
+          "template": " {{ .Path }} ",
           "trailing_diamond": "\ue0b0",
           "type": "path"
         },
@@ -44,6 +47,7 @@
             "fetch_upstream_icon": true
           },
           "style": "diamond",
+          "template": " {{ .HEAD }}{{ .BranchStatus }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0 }} \uf692 {{ .StashCount }}{{ end }} ",
           "trailing_diamond": "\ue0b0",
           "type": "git"
         },
@@ -52,6 +56,7 @@
           "foreground": "#100e23",
           "leading_diamond": "<transparent,background>\ue0b0</>",
           "style": "diamond",
+          "template": " {{ .Full }} ",
           "trailing_diamond": "\ue0b0",
           "type": "python"
         }
@@ -69,11 +74,12 @@
         {
           "foreground": "#ffffff",
           "style": "plain",
+          "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}\u276f\u276f</> ",
           "type": "text"
         }
       ],
       "type": "prompt"
     }
   ],
-  "version": 1
+  "version": 2
 }
