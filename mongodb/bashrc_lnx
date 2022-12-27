@@ -3,7 +3,7 @@
 
 ### Set Homebrew
 export PATH=/home/linuxbrew/.linuxbrew/bin:${PATH}
-if [[ -x "$(command -v oh-my-posh)" && -n ${POSH_THEME} ]]; then
+if [[ -x "$(command -v oh-my-posh)" ]]; then
     eval "$(oh-my-posh --init --shell bash --config ${POSH_THEME})"
 fi
 
