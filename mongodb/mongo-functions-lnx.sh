@@ -5,24 +5,28 @@
 #
 # Options:
 #   - Branch: --master (default), --v6.0, --v6.2, --v5.0, --v4.4, --v4.2
+#   - Untracked files: --no-clean (default), --clean
 mongo-prepare ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
 	__mongo-parse-args $@;
 
-	if [[ ${__cmd_prefix} != echo ]]; then
+	if [[ ${__cmd_prefix} != echo && ${__clean} == 1 ]]; then
 		echo "WARNING: All uncommitted changes and unversioned files will be lost";
 		read -p "Are you sure you want to proceed? [y/N] ";
 		[[ ${REPLY} =~ (y|Y) ]] || return 0;
 	fi
 
 	[[ -n ${VIRTUAL_ENV} ]] && ${__cmd_prefix} deactivate;
-	${__cmd_prefix} \git clean -fdx;
-	${__cmd_prefix} ccache -C;
+	if [[ ${__clean} == 1 ]]; then
+		${__cmd_prefix} \git clean -fdx;
+		${__cmd_prefix} ccache -C;
+	fi
 
 	case ${__mongo_branch} in
 		v4.2 | v4.4 | v5.0 | v6.0 | v6.2 | master)
+			${__cmd_prefix} \rm -rf ${MONGO_VENV_DIRNAME};
 			${__cmd_prefix} \python3 -m venv ${MONGO_VENV_DIRNAME};
 			${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
 			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
@@ -309,6 +313,7 @@ __mongo-parse-args ()
 	[[ -z ${__parsed_args} ]] && __parsed_args=true || return 0;
 
 	__cmd_prefix=;
+	__clean=0;
 	__mongo_branch=master;
 	__toolchain=clang;
 	__build_mode='--opt=off --dbg=on';
@@ -322,6 +327,14 @@ __mongo-parse-args ()
 		case $1 in
 			--echo)
 				__cmd_prefix=echo;
+				shift
+			;;
+			--clean)
+				__clean=1;
+				shift
+			;;
+			--no-clean)
+				__clean=0;
 				shift
 			;;
 			--master)
