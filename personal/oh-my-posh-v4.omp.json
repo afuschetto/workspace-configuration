@@ -33,7 +33,7 @@
             "fetch_status": true
           },
           "style": "diamond",
-          "template": " {{ .HEAD }} \ue0b1{{ if .Working.Changed }} {{ .Working.String }}{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} \ue0b1{{ end }}{{ if .Staging.Changed }} {{ .Staging.String }}{{ end }} ",
+          "template": " {{ .HEAD }}{{ if .Working.Changed }} {{ .Working.String }}{{ end }}{{ if .Staging.Changed }} \ue0b1 {{ .Staging.String }}{{ end }} ",
           "trailing_diamond": "\ue0b0",
           "type": "git"
         },
