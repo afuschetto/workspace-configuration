@@ -7,7 +7,7 @@
         {
           "background": "#9a348e",
           "foreground": "#ffffff",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "leading_diamond": "\ue0b2",
           "style": "diamond",
           "template": " {{ if .SSHSession }}(SSH) {{ end }}{{ .UserName }}@{{ .HostName }} ",
           "trailing_diamond": "\ue0b0",
