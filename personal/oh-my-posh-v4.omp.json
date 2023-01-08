@@ -55,7 +55,7 @@
           "trailing_diamond": "\ue0b0",
           "type": "executiontime",
           "properties": {
-            "style": "austin",
+            "style": "round",
             "threshold": 1000
           }
         }
