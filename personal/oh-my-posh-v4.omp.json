@@ -45,6 +45,19 @@
           "template": " {{ .Full }} ",
           "trailing_diamond": "\ue0b0",
           "type": "python"
+        },
+        {
+          "background": "#8800dd",
+          "foreground": "#ffffff",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "style": "diamond",
+          "template": " {{ .FormattedMs }} ",
+          "trailing_diamond": "\ue0b0",
+          "type": "executiontime",
+          "properties": {
+            "style": "austin",
+            "threshold": 1000
+          }
         }
       ],
       "type": "prompt"
