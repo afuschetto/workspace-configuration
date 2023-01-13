@@ -1,0 +1,20 @@
+set auto-load safe-path /
+
+set print object on
+set print static-members off
+set print pretty on
+
+set pagination on
+#set logging enabled on
+
+# Print the full stack trace on python exceptions to aid debugging
+set python print-stack full
+
+# Load the mongodb utilities
+source  ~/devel/10gen/mongo-master-dev1/buildscripts/gdb/mongo.py
+
+# Load the mongodb pretty printers
+source  ~/devel/10gen/mongo-master-dev1/buildscripts/gdb/mongo_printers.py
+
+# Load the mongodb lock analysis
+source  ~/devel/10gen/mongo-master-dev1/buildscripts/gdb/mongo_lock.py
