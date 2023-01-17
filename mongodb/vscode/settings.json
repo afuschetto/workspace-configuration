@@ -8,6 +8,7 @@
         "distsrc/": true,
         "etc/": true,
         "evergreen/": true,
+        "node_modules/": true,
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
@@ -21,6 +22,7 @@
         "distsrc/": true,
         "etc/": true,
         "evergreen/": true,
+        "node_modules/": true,
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
@@ -34,6 +36,7 @@
         "distsrc/": true,
         "etc/": true,
         "evergreen/": true,
+        "node_modules/": true,
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
@@ -41,12 +44,18 @@
         "compile_commands.json": true,
         "resmoke.ini": true
     },
-    "[cpp][javascript]": {
+    "[c][cpp][javascript]": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "xaver.clang-format"
     },
     "editor.rulers": [
         100
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.validate": [
+        "javascript"
     ],
     "cSpell.words": [
         "BSON",
@@ -58,6 +67,7 @@
         "FCVP",
         "interruptible",
         "invokable",
+        "itcount",
         "jstests",
         "Killable",
         "logd",

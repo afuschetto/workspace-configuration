@@ -26,10 +26,11 @@ mongo-prepare ()
 
 	case ${__mongo_branch} in
 		v4.2 | v4.4 | v5.0 | v6.0 | v6.2 | master)
-			${__cmd_prefix} \rm -rf ${MONGO_VENV_DIRNAME};
+			${__cmd_prefix} \rm -rf ${MONGO_VENV_DIRNAME} node_modules;
 			${__cmd_prefix} \python3 -m venv ${MONGO_VENV_DIRNAME};
 			${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
-			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver
+			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver;
+			${__cmd_prefix} \npm install
 		;;
 		*)
 			echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
