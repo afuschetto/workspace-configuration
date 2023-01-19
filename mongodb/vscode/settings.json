@@ -14,6 +14,8 @@
         "src/third_party/": true,
         "build.ninja": true,
         "compile_commands.json": true,
+        "package-lock.json": true,
+        "package.json": true,
         "resmoke.ini": true
     },
     "files.watcherExclude": {
@@ -28,6 +30,8 @@
         "src/third_party/": true,
         "build.ninja": true,
         "compile_commands.json": true,
+        "package-lock.json": true,
+        "package.json": true,
         "resmoke.ini": true
     },
     "search.exclude": {
@@ -42,6 +46,8 @@
         "src/third_party/": true,
         "build.ninja": true,
         "compile_commands.json": true,
+        "package-lock.json": true,
+        "package.json": true,
         "resmoke.ini": true
     },
     "[c][cpp][javascript]": {
