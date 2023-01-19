@@ -1,4 +1,5 @@
-### Set personal Linux settings
+
+0;95;0c### Set personal Linux settings
 . ~/.config/workspace/personal/bashrc_lnx
 
 ### Set Homebrew
@@ -18,8 +19,7 @@ ulimit -n 64000
 ulimit -u 64000
 ulimit -l 1024
 ulimit -c unlimited
-MONGO_TOOLCHAIN_VER="v4"
-export PATH=~/.local/bin:~/devel/bin:~/demo/bin:/opt/mongodbtoolchain/${MONGO_TOOLCHAIN_VER}/bin:${PATH}
+export PATH=~/.local/bin:~/devel/bin:~/demo/bin:/opt/mongodbtoolchain/v4/bin:${PATH}
 export PATH=~/.asdf/installs/nodejs/16.18.1/bin:${PATH}
 . ~/.config/workspace/mongodb/mongo-functions-lnx.sh
 export NINJA_STATUS="[%f/%t (%p) %es] "
@@ -27,3 +27,5 @@ if [[ -d /opt/go ]]; then
     export PATH=/opt/go/bin:${PATH}
     export GOROOT=/opt/go
 fi
+# TODO (BUILD-16612): To remove.
+export TOOLING_METRICS_OPT_OUT=1
