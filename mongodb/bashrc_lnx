@@ -1,5 +1,4 @@
-
-0;95;0c### Set personal Linux settings
+### Set personal Linux settings
 . ~/.config/workspace/personal/bashrc_lnx
 
 ### Set Homebrew
