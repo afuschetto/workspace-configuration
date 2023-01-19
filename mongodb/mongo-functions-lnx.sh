@@ -29,8 +29,8 @@ mongo-prepare ()
 			${__cmd_prefix} \rm -rf ${MONGO_VENV_DIRNAME} node_modules;
 			${__cmd_prefix} \python3 -m venv ${MONGO_VENV_DIRNAME};
 			${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
-			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt --use-feature=2020-resolver;
-			${__cmd_prefix} \npm install
+			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt;
+			${__cmd_prefix} \npm install eslint
 		;;
 		*)
 			echo "ERROR: ${__mongo_branch} branch is not supported by ${FUNCNAME[0]}" 1>&2;
@@ -97,7 +97,7 @@ mongo-build ()
 			[[ -f compile_commands.json ]] || __mongo-configure-compilation-db $@;
 			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
 					${__build_mode} \
 					ICECC=icecc \
 					generated-sources \
@@ -135,7 +135,7 @@ mongo-clean ()
 		v4.2)
 			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
 					--clean \
 					${__target}
 		;;
@@ -281,7 +281,6 @@ mongo-debug ()
 ###
 
 MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
-MONGO_TOOLCHAIN_VER=${MONGO_TOOLCHAIN_VER:-'v4'}
 MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd.production.build.10gen.cc'}
 
 ###
@@ -434,7 +433,7 @@ __mongo-configure-ninja ()
 	case ${__mongo_branch} in
 		v4.4 | v5.0 | v6.0 | v6.2 | master)
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
 					${__build_mode} \
 					${__link_model} \
 					--ninja generate-ninja \
@@ -464,7 +463,7 @@ __mongo-configure-compilation-db ()
 		v4.2)
 			__mongo-check-venv;
 			${__cmd_prefix} ./buildscripts/scons.py \
-					--variables-files=etc/scons/mongodbtoolchain_${MONGO_TOOLCHAIN_VER}_${__toolchain}.vars \
+					--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
 					${__build_mode} \
 					ICECC=icecc \
 					compiledb \
