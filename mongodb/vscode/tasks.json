@@ -2,32 +2,68 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "Configure debug",
+            "type": "shell",
+            "command": "mongo-configure",
+            "args": [
+                "--debug",
+                "--dynamic"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build server",
             "type": "shell",
             "command": "mongo-build",
-            "args": [
-                "--all"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
-            "problemMatcher": [
-                "$gcc"
+            "problemMatcher": []
+        },
+        {
+            "label": "Build unit-test",
+            "type": "shell",
+            "command": "ninja",
+            "args": [
+                "-j400",
+                "build/install/bin/${input:unittestExecutable}"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Build all artifacts"
+            "problemMatcher": []
         },
         {
-            "label": "format",
+            "label": "Run unit-test",
             "type": "shell",
-            "command": "mongo-format",
-            "options": {
-                "cwd": "${workspaceFolder}"
+            "command": "build/install/bin/${input:unittestExecutable}",
+            "args": [
+                "--suite=${input::unittestSuite}"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
             },
-            "detail": "Format code according to MongoDB's coding style"
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "type": "pickString",
+            "id": "unittestExecutable",
+            "description": "Unit-test executable",
+            "options": [
+                "db_s_config_server_test",
+                "db_s_shard_server_test"
+            ]
+        },
+        {
+            "type": "promptString",
+            "id": "unittestSuite",
+            "description": "Unit-test suite"
         }
     ]
 }

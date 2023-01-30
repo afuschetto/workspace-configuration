@@ -2,66 +2,104 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) Attach to mongod process",
+            "name": "Unit-test",
             "type": "cppdbg",
-            "request": "attach",
-            "program": "${workspaceFolder}/build/debug/install/bin/mongod",
-            "processId": "${command:pickProcess}",
-            "stopAtEntry": false,
+            "request": "launch",
             "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb"
-        },
-        {
-            "name": "(gdb) Attach to mongod process",
-            "type": "cppdbg",
-            "request": "attach",
-            "program": "${workspaceFolder}/build/debug/install/bin/mongod",
-            "processId": "${command:pickProcess}",
+            "program": "${workspaceFolder}/build/install/bin/${input:unittestExecutable}",
+            "args": [
+                "--suite=${input:unittestSuite}"
+            ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
             "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
             "setupCommands": [
                 {
-                    "description": "Enable pretty-printing for GDB",
+                    "description": "Enable GDB pretty printing",
                     "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
             ]
         },
         {
-            "name": "(lldb) Debug unit-tests",
+            "name": "Core dumpo",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/debug/install/bin/db_s_shard_server_test",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb"
-        },
-        {
-            "name": "(gdb) Debug unit-tests",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/debug/install/bin/db_s_shard_server_test",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/build/install/bin/${input:unittestExecutable}",
+            "coreDumpPath": "${workspaceFolder}/${input:coreDumpFile}",
             "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
             "setupCommands": [
                 {
-                    "description": "Enable pretty-printing for GDB",
+                    "description": "Enable GDB pretty printing",
                     "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "Attach",
+            "type": "cppdbg",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceFolder}/build/install/bin/${input:serverExecutable}",
+            "processId": "${command:pickProcess}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable GDB pretty printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "type": "pickString",
+            "id": "serverExecutable",
+            "description": "Unit-test executable",
+            "options": [
+                "mongod",
+                "mongos"
+            ],
+            "default": "mongod"
+        },
+        {
+            "type": "pickString",
+            "id": "unittestExecutable",
+            "description": "Unit-test executable",
+            "options": [
+                "db_s_config_server_test",
+                "db_s_shard_server_test"
+            ]
+        },
+        {
+            "type": "promptString",
+            "id": "unittestSuite",
+            "description": "Unit-test suite"
+        },
+        {
+            "type": "promptString",
+            "id": "coreDumpFile",
+            "description": "Memory core dump file"
         }
     ]
 }
