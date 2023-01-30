@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Unit-test",
+            "name": "Rn unit-test",
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -27,7 +27,7 @@
             ]
         },
         {
-            "name": "Core dumpo",
+            "name": "Open core dumpo",
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceRoot}",
@@ -49,12 +49,10 @@
             ]
         },
         {
-            "name": "Attach",
+            "name": "Attach to process",
             "type": "cppdbg",
-            "request": "launch",
-            "cwd": "${workspaceRoot}",
+            "request":"attach",
             "program": "${workspaceFolder}/build/install/bin/${input:serverExecutable}",
-            "processId": "${command:pickProcess}",
             "MIMode": "gdb",
             "miDebuggerPath": "gdb",
             "setupCommands": [
