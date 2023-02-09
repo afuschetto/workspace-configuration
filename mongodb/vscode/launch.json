@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Rn unit-test",
+            "name": "Run unit-test",
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceFolder}",
@@ -27,11 +27,11 @@
             ]
         },
         {
-            "name": "Open core dumpo",
+            "name": "Open core dump",
             "type": "cppdbg",
             "request": "launch",
             "cwd": "${workspaceRoot}",
-            "program": "${workspaceFolder}/build/install/bin/${input:unittestExecutable}",
+            "program": "${workspaceFolder}/build/install/bin/${input:executable}",
             "coreDumpPath": "${workspaceFolder}/${input:coreDumpFile}",
             "MIMode": "gdb",
             "miDebuggerPath": "gdb",
@@ -70,6 +70,18 @@
         }
     ],
     "inputs": [
+        {
+            "type": "pickString",
+            "id": "executable",
+            "description": "Executable",
+            "options": [
+                "mongod",
+                "mongos",
+                "db_s_config_server_test",
+                "db_s_shard_server_test"
+            ],
+            "default": "mongod"
+        },
         {
             "type": "pickString",
             "id": "serverExecutable",
