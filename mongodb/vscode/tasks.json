@@ -2,68 +2,25 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Configure debug",
+            "label": "Prepare repository",
             "type": "shell",
-            "command": "mongo-configure",
+            "command": "mongo-prepare",
+            "group": "build"
+        },
+        {
+            "label": "Build all",
+            "type": "shell",
+            "command": "mongo-build",
             "args": [
+                "--gcc",
                 "--debug",
                 "--dynamic"
             ],
-            "group": "build",
-            "problemMatcher": []
-        },
-        {
-            "label": "Build server",
-            "type": "shell",
-            "command": "mongo-build",
+            "problemMatcher": ["$gcc"],
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Build unit-test",
-            "type": "shell",
-            "command": "ninja",
-            "args": [
-                "-j400",
-                "build/install/bin/${input:unittestExecutable}"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Run unit-test",
-            "type": "shell",
-            "command": "build/install/bin/${input:unittestExecutable}",
-            "args": [
-                "--suite=${input::unittestSuite}"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": []
-        }
-    ],
-    "inputs": [
-        {
-            "type": "pickString",
-            "id": "unittestExecutable",
-            "description": "Unit-test executable",
-            "options": [
-                "db_s_config_server_test",
-                "db_s_shard_server_test"
-            ]
-        },
-        {
-            "type": "promptString",
-            "id": "unittestSuite",
-            "description": "Unit-test suite"
+            }
         }
     ]
 }

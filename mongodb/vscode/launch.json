@@ -32,7 +32,7 @@
             "request": "launch",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceFolder}/build/install/bin/${input:executable}",
-            "coreDumpPath": "${workspaceFolder}/${input:coreDumpFile}",
+            "coreDumpPath": "${workspaceFolder}/${input:coreDump}",
             "MIMode": "gdb",
             "miDebuggerPath": "gdb",
             "setupCommands": [
@@ -46,13 +46,18 @@
                     "text": "-gdb-set disassembly-flavor intel",
                     "ignoreFailures": true
                 }
+            ],
+            "postRemoteConnectCommands": [
+                {
+                    "text": "source ${home}/.gdbinit"
+                }
             ]
         },
         {
             "name": "Attach to process",
             "type": "cppdbg",
-            "request":"attach",
-            "program": "${workspaceFolder}/build/install/bin/${input:serverExecutable}",
+            "request": "attach",
+            "program": "${workspaceFolder}/build/install/bin/${input:executable}",
             "MIMode": "gdb",
             "miDebuggerPath": "gdb",
             "setupCommands": [
@@ -71,8 +76,23 @@
     ],
     "inputs": [
         {
+            "id": "unittestExecutable",
             "type": "pickString",
+            "description": "Unit-test executable",
+            "options": [
+                "db_s_config_server_test",
+                "db_s_shard_server_test"
+            ],
+            "default": "db_s_shard_server_test"
+        },
+        {
+            "id": "unittestSuite",
+            "type": "promptString",
+            "description": "Unit-test suite"
+        },
+        {
             "id": "executable",
+            "type": "pickString",
             "description": "Executable",
             "options": [
                 "mongod",
@@ -81,35 +101,6 @@
                 "db_s_shard_server_test"
             ],
             "default": "mongod"
-        },
-        {
-            "type": "pickString",
-            "id": "serverExecutable",
-            "description": "Unit-test executable",
-            "options": [
-                "mongod",
-                "mongos"
-            ],
-            "default": "mongod"
-        },
-        {
-            "type": "pickString",
-            "id": "unittestExecutable",
-            "description": "Unit-test executable",
-            "options": [
-                "db_s_config_server_test",
-                "db_s_shard_server_test"
-            ]
-        },
-        {
-            "type": "promptString",
-            "id": "unittestSuite",
-            "description": "Unit-test suite"
-        },
-        {
-            "type": "promptString",
-            "id": "coreDumpFile",
-            "description": "Memory core dump file"
         }
     ]
 }
