@@ -12,12 +12,12 @@
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
+        "all_feature_flags.txt": true,
         "build.ninja": true,
         "compile_commands.json": true,
         "jsconfig.json": true,
         "package-lock.json": true,
-        "package.json": true,
-        "resmoke.ini": true
+        "package.json": true
     },
     "files.watcherExclude": {
         "buildscripts/": true,
@@ -29,12 +29,12 @@
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
+        "all_feature_flags.txt": true,
         "build.ninja": true,
         "compile_commands.json": true,
         "jsconfig.json": true,
         "package-lock.json": true,
-        "package.json": true,
-        "resmoke.ini": true
+        "package.json": true
     },
     "files.trimTrailingWhitespace": true,
     "search.exclude": {
@@ -47,30 +47,39 @@
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
+        "all_feature_flags.txt": true,
         "build.ninja": true,
         "compile_commands.json": true,
         "jsconfig.json": true,
         "package-lock.json": true,
-        "package.json": true,
-        "resmoke.ini": true
-    },
-    "[c][cpp][javascript]": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "xaver.clang-format"
+        "package.json": true
     },
     "editor.rulers": [
         100
     ],
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
+    ////////////////////
+    // cpptools
     "C_Cpp.autocomplete": "disabled",
     "C_Cpp.formatting": "disabled",
     "C_Cpp.errorSquiggles": "disabled",
     "C_Cpp.intelliSenseEngine": "disabled",
+    ////////////////////
+    // clang-format
+    "[c][cpp][javascript]": {
+        "editor.defaultFormatter": "xaver.clang-format",
+        "editor.formatOnSave": true
+    },
+    ////////////////////
+    // eslint
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
     "eslint.validate": [
         "javascript"
     ],
+    "js/ts.implicitProjectConfig.target": "ES2020"
+    ////////////////////
+    // cSpell
     "cSpell.words": [
         "BSON",
         "BSONOBJ",

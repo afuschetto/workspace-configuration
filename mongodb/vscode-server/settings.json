@@ -8,11 +8,12 @@
         }
     },
     "terminal.integrated.defaultProfile.linux": "bash",
+    ////////////////////
+    // clangd
     "clangd.checkUpdates": true,
     "clangd.path": "/home/ubuntu/.vscode-server/data/User/globalStorage/llvm-vs-code-extensions.vscode-clangd/install/15.0.6/clangd_15.0.6/bin/clangd",
     "clangd.arguments": [
-        "-j=4",
-        "--query-driver=/opt/mongodbtoolchain/*/bin/clang++",
+        "--query-driver=/opt/mongodbtoolchain/v4/bin/clang++",
         "--header-insertion=never"
     ]
 }
