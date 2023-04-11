@@ -18,3 +18,21 @@ source  ~/devel/10gen/mongo-master-dev1/buildscripts/gdb/mongo_printers.py
 
 # Load the mongodb lock analysis
 source  ~/devel/10gen/mongo-master-dev1/buildscripts/gdb/mongo_lock.py
+
+# Load the gdbmongo pretty printers
+#python
+#try:
+#    import gdbmongo
+#except ImportError:
+#    import sys
+#    if sys.prefix.startswith("/opt/mongodbtoolchain/"):
+#        import subprocess
+#        subprocess.run([sys.prefix + "/bin/python3", "-m", "pip", "install", "gdbmongo"], check=True)
+#        import gdbmongo
+#    else:
+#        import warnings
+#        warnings.warn("Not attempting to install gdbmongo into non MongoDB toolchain Python")#
+#
+#if "gdbmongo" in dir():
+#    gdbmongo.register_printers()
+#end
