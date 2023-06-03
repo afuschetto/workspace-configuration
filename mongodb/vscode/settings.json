@@ -111,6 +111,10 @@
         "Unreplicated",
         "UNSHARDED",
         "upserted",
-        "wuow"
+        "wuow",
+        "cohosted",
+        "defragmentation",
+        "defragmentations",
+        "defragmenting"
     ]
 }
