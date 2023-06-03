@@ -21,6 +21,7 @@ ulimit -c unlimited
 export PATH=~/.local/bin:~/devel/bin:~/demo/bin:/opt/mongodbtoolchain/v4/bin:${PATH}
 export PATH=~/.asdf/installs/nodejs/16.18.1/bin:${PATH}
 . ~/.config/workspace/mongodb/mongo-functions-lnx.sh
+_fzf_setup_completion path mongo-test-locally
 export NINJA_STATUS="[%f/%t (%p) %es] "
 if [[ -d /opt/go ]]; then
     export PATH=/opt/go/bin:${PATH}
