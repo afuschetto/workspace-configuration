@@ -25,6 +25,7 @@ else
     export PS1='\[\e[0;31m\][\u@\h:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
 fi
 export EDITOR=emacs
+HISTFILESIZE=10000
 
 ### Set aliases
 alias ls="ls -h --color=auto"
@@ -36,6 +37,10 @@ alias more="more --RAW-CONTROL-CHARS --chop-long-lines"
 alias less="less --RAW-CONTROL-CHARS --chop-long-lines --IGNORE-CASE"
 alias emacs="emacs -nw"
 alias e="emacs"
+alias diff="colordiff"
 
 ### Set fzf (command-line fuzzy finder)
-[[ -f ~/.fzf.bash ]] && . ~/.fzf.bash
+if [[ -f ~/.fzf.bash ]]; then
+    . ~/.fzf.bash
+    _fzf_setup_completion path code
+fi
