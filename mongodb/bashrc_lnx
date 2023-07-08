@@ -2,13 +2,14 @@
 . ~/.config/workspace/personal/bashrc_lnx
 
 ### Set Homebrew
-export PATH=/home/linuxbrew/.linuxbrew/bin:${PATH}
-if [[ -x "$(command -v oh-my-posh)" ]]; then
-    eval "$(oh-my-posh --init --shell bash --config ${POSH_THEME})"
-fi
+# Note: Not supported on ARM processors.
+#export PATH=/home/linuxbrew/.linuxbrew/bin:${PATH}
 
 ### Set general environment settings
 export PATH=~/bin:${PATH}
+if [[ -x "$(command -v oh-my-posh)" ]]; then
+    eval "$(oh-my-posh --init --shell bash --config ${POSH_THEME})"
+fi
 . ~/.config/workspace/personal/venv-auto-activate.sh
 
 ### Set MongoDB's development settings
@@ -27,5 +28,4 @@ if [[ -d /opt/go ]]; then
     export PATH=/opt/go/bin:${PATH}
     export GOROOT=/opt/go
 fi
-# TODO (BUILD-16612): To remove.
 export TOOLING_METRICS_OPT_OUT=1
