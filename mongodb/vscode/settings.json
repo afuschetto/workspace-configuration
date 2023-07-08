@@ -77,7 +77,6 @@
     "eslint.validate": [
         "javascript"
     ],
-    "js/ts.implicitProjectConfig.target": "ES2020"
     ////////////////////
     // cSpell
     "cSpell.words": [
