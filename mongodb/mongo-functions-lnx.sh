@@ -224,7 +224,7 @@ mongo-debug ()
 ###
 
 MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
-MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd.production.build.10gen.cc'}
+MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd-graviton.production.build.10gen.cc'}
 
 ###
 ### Internal functions
