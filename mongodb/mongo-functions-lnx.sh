@@ -284,12 +284,12 @@ __mongo-parse-args ()
 				__mongo_branch=master;
 				shift
 			;;
-			--v7.0)
-				__mongo_branch=v7.0;
+			--v7.1)
+				__mongo_branch=v7.1;
 				shift
 			;;
-			--v6.3)
-				__mongo_branch=v6.3;
+			--v7.0)
+				__mongo_branch=v7.0;
 				shift
 			;;
 			--v6.0)
