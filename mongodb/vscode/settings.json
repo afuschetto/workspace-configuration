@@ -3,6 +3,8 @@
         "*.idl": "yaml"
     },
     "files.exclude": {
+        "antithesis/": true,
+        "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
         "distsrc/": true,
@@ -12,6 +14,7 @@
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
+        "toolchains/": true,
         "all_feature_flags.txt": true,
         "build.ninja": true,
         "compile_commands.json": true,
@@ -20,6 +23,8 @@
         "package.json": true
     },
     "files.watcherExclude": {
+        "antithesis/": true,
+        "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
         "distsrc/": true,
@@ -29,6 +34,7 @@
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
+        "toolchains/": true,
         "all_feature_flags.txt": true,
         "build.ninja": true,
         "compile_commands.json": true,
@@ -38,6 +44,8 @@
     },
     "files.trimTrailingWhitespace": true,
     "search.exclude": {
+        "antithesis/": true,
+        "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
         "distsrc/": true,
@@ -47,6 +55,7 @@
         "rpm/": true,
         "site_scons/": true,
         "src/third_party/": true,
+        "toolchains/": true,
         "all_feature_flags.txt": true,
         "build.ninja": true,
         "compile_commands.json": true,
@@ -78,7 +87,7 @@
         "javascript"
     ],
     ////////////////////
-    // cSpell
+    // code-spell-checker
     "cSpell.words": [
         "BSON",
         "BSONOBJ",
