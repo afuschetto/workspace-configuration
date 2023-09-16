@@ -10,8 +10,8 @@
     "terminal.integrated.defaultProfile.linux": "bash",
     ////////////////////
     // clangd
-    "clangd.checkUpdates": true,
-    "clangd.path": "/home/ubuntu/.vscode-server/data/User/globalStorage/llvm-vs-code-extensions.vscode-clangd/install/16.0.2/clangd_16.0.2/bin/clangd",
+    "clangd.checkUpdates": false,
+    "clangd.path": "/home/ubuntu/bin/clangd",
     "clangd.arguments": [
         "--query-driver=/opt/mongodbtoolchain/v4/bin/clang++",
         "--header-insertion=never"
