@@ -4,6 +4,7 @@
     },
     "files.exclude": {
         "antithesis/": true,
+        "bazel/": true,
         "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
@@ -20,10 +21,13 @@
         "compile_commands.json": true,
         "jsconfig.json": true,
         "package-lock.json": true,
-        "package.json": true
+        "package.json": true,
+        "poetry.lock": true,
+        "pyproject.toml": true
     },
     "files.watcherExclude": {
         "antithesis/": true,
+        "bazel/": true,
         "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
@@ -40,11 +44,14 @@
         "compile_commands.json": true,
         "jsconfig.json": true,
         "package-lock.json": true,
-        "package.json": true
+        "package.json": true,
+        "poetry.lock": true,
+        "pyproject.toml": true
     },
     "files.trimTrailingWhitespace": true,
     "search.exclude": {
         "antithesis/": true,
+        "bazel/": true,
         "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
@@ -61,7 +68,9 @@
         "compile_commands.json": true,
         "jsconfig.json": true,
         "package-lock.json": true,
-        "package.json": true
+        "package.json": true,
+        "poetry.lock": true,
+        "pyproject.toml": true
     },
     "editor.rulers": [
         100
