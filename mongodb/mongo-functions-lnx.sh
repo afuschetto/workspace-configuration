@@ -26,7 +26,17 @@ mongo-prepare ()
 	${__cmd_prefix} \rm -rf ${MONGO_VENV_DIRNAME} node_modules;
 	${__cmd_prefix} \python3 -m venv ${MONGO_VENV_DIRNAME};
 	${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
-	${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt )
+
+	case ${__mongo_branch} in
+		master)
+			PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
+			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install 'poetry==1.5.1';
+			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m poetry install --no-root --sync
+		;;
+		*)
+			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt
+		;;
+	esac )
 }
 
 # Generates the `build.ninja` and `compile_commands.json` files, which are
