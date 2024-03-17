@@ -4,6 +4,7 @@
 # confirmation by the user).
 #
 # Options:
+#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
 #   - Untracked files: --no-clean (default), --clean
 mongo-prepare ()
 {
@@ -29,8 +30,8 @@ mongo-prepare ()
 
 	case ${__mongo_branch} in
 		master)
-			PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
 			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install 'poetry==1.5.1';
+			${__cmd_prefix} export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
 			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m poetry install --no-root --sync
 		;;
 		*)
@@ -48,6 +49,7 @@ mongo-prepare ()
 # `compile_commands.json` files must be recreated.
 #
 # Options:
+#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
@@ -67,16 +69,18 @@ mongo-configure ()
 # files are also formatted before being compiled.
 #
 # Options:
+#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
-#   - Executables to build: --all (default), --core
+#   - Executables to build: --all, --devcore (default), --core,
 #   - Code formatting: --format (default), --no-format
 #   - All those of ninja
 mongo-build ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
+	__mongo-check-venv;
 	__mongo-parse-args $@;
 
 	[[ ${__format} == 1 ]] && ${__cmd_prefix} mongo-format;
@@ -165,6 +169,7 @@ mongo-test-locally ()
 # suites to run. By default, all required suites are pre-selected.
 #
 # Options:
+#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
 #   - All those of evergreen patch
 mongo-test-remotely ()
 {
@@ -189,6 +194,21 @@ mongo-test-remotely ()
 }
 
 ################################################################################
+
+# Clones the Git repository into the given directory (master as default).
+mongo-clone ()
+{
+	( set -e;
+	__mongo-parse-args $@;
+
+	if [[ ${#__args[@]} == 0 ]]; then
+		echo "ERROR: Missing directory of the local repository" 1>&2;
+		return 1;
+	fi
+	${__cmd_prefix} \git clone ${MONGO_GIT_REMOTE} \
+			--branch ${__mongo_branch} \
+			${__args[@]} )
+}
 
 mongo-merge ()
 {
@@ -233,6 +253,7 @@ mongo-debug ()
 ### Global settings
 ###
 
+MONGO_GIT_REMOTE=git@github.com:10gen/mongo.git
 MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
 MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd-graviton.production.build.10gen.cc'}
 
@@ -272,7 +293,7 @@ __mongo-parse-args ()
 	__build_mode='--opt=off --dbg=on';
 	__link_model='--link-model=dynamic';
 	__format=1;
-	__target=all;
+	__target=devcore;
 	__tasks=1;
 	__args=();
 
@@ -294,8 +315,8 @@ __mongo-parse-args ()
 				__mongo_branch=master;
 				shift
 			;;
-			--v7.1)
-				__mongo_branch=v7.1;
+			--v7.3)
+				__mongo_branch=v7.3;
 				shift
 			;;
 			--v7.0)
@@ -308,10 +329,6 @@ __mongo-parse-args ()
 			;;
 			--v5.0)
 				__mongo_branch=v5.0;
-				shift
-			;;
-			--v4.4)
-				__mongo_branch=v4.4;
 				shift
 			;;
 			--clang)
@@ -351,7 +368,21 @@ __mongo-parse-args ()
 				shift
 			;;
 			--core)
+				# Build mongos and mongod
 				__target=core;
+				shift
+			;;
+			--devcore)
+				# Build mongos, mongod and jstestshell (for JS tests)
+				__target=devcore;
+				shift
+			;;
+			--mongod)
+				__target=mongod;
+				shift
+			;;
+			--mongos)
+				__target=mongos;
 				shift
 			;;
 			--mono-task)
