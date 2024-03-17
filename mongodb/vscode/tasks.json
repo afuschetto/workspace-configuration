@@ -12,9 +12,6 @@
             "type": "shell",
             "command": "mongo-build",
             "args": [
-                "--gcc",
-                "--debug",
-                "--dynamic"
             ],
             "problemMatcher": ["$gcc"],
             "group": {
