@@ -38,6 +38,7 @@ alias less="less --RAW-CONTROL-CHARS --chop-long-lines --IGNORE-CASE"
 alias emacs="emacs -nw"
 alias e="emacs"
 alias diff="colordiff"
+alias tmux="tmux -u"
 
 ### Set fzf (command-line fuzzy finder)
 if [[ -f ~/.fzf.bash ]]; then
