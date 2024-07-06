@@ -19,12 +19,12 @@ ulimit -n 64000
 ulimit -u 64000
 ulimit -l 1024
 ulimit -c unlimited
-export PATH=/opt/mongodbtoolchain/v4/bin:${PATH}
+export PATH=${PATH}:/opt/mongodbtoolchain/v4/bin
 . ~/.config/workspace/mongodb/mongo-functions-lnx.sh
 _fzf_setup_completion path mongo-test-locally
 export NINJA_STATUS="[%f/%t (%p) %es] "
 if [[ -d /opt/go ]]; then
-    export PATH=/opt/go/bin:${PATH}
+    export PATH=${PATH}:/opt/go/bin
     export GOROOT=/opt/go
 fi
 export TOOLING_METRICS_OPT_OUT=1
