@@ -16,9 +16,6 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 ### Set Git completition
 . ~/.config/workspace/personal/git-completion.bash
 
-### Set Homebrew
-eval $(/opt/homebrew/bin/brew shellenv)
-
 ### Set general environment settings
 export CLICOLOR=1
 export POSH_THEME="~/.config/workspace/personal/oh-my-posh-v4.omp.json"
