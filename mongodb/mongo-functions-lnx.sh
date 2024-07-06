@@ -4,7 +4,7 @@
 # confirmation by the user).
 #
 # Options:
-#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
+#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - Untracked files: --no-clean (default), --clean
 mongo-prepare ()
 {
@@ -29,13 +29,13 @@ mongo-prepare ()
 	${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
 
 	case ${__mongo_branch} in
-		master)
-			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install 'poetry==1.5.1';
+		v7.3 | v8.0 | master)
+			${__cmd_prefix} ${MONGO_PYTHON} -m pip install 'poetry==1.5.1';
 			${__cmd_prefix} export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
-			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m poetry install --no-root --sync
+			${__cmd_prefix} ${MONGO_PYTHON} -m poetry install --no-root --sync
 		;;
 		*)
-			${__cmd_prefix} ${MONGO_VENV_DIRNAME}/bin/python3 -m pip install -r buildscripts/requirements.txt
+			${__cmd_prefix} ${MONGO_PYTHON} -m pip install -r buildscripts/requirements.txt
 		;;
 	esac )
 }
@@ -49,7 +49,7 @@ mongo-prepare ()
 # `compile_commands.json` files must be recreated.
 #
 # Options:
-#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
+#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
@@ -69,7 +69,7 @@ mongo-configure ()
 # files are also formatted before being compiled.
 #
 # Options:
-#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
+#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
@@ -125,7 +125,7 @@ mongo-format ()
 	__mongo-check-venv;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} ./buildscripts/clang_format.py format-my )
+	${__cmd_prefix} ${MONGO_PYTHON} buildscripts/clang_format.py format-my )
 }
 
 mongo-find-suites ()
@@ -135,8 +135,16 @@ mongo-find-suites ()
 	__mongo-check-venv;
 	__mongo-parse-args --master $@;
 
-	${__cmd_prefix} ./buildscripts/resmoke.py find-suites \
-			${__args[@]} )
+	case ${__mongo_branch} in
+		v8.0 | master)
+			${__cmd_prefix} ${MONGO_PYTHON} build/install/bin/resmoke.py find-suites \
+					${__args[@]}
+		;;
+		*)
+			${__cmd_prefix} ${MONGO_PYTHON} buildscripts/resmoke.py find-suites \
+					${__args[@]}
+		;;
+	esac )
 }
 
 # Runs on the current machine the infrastructure to process the specified
@@ -145,7 +153,7 @@ mongo-find-suites ()
 #
 # Options:
 #   - Concurrency: --single-task (default), --multi-task
-#   - All those of buildscripts/resmoke.py
+#   - All those of build/install/bin/resmoke.py
 mongo-test-locally ()
 {
 	( set -e;
@@ -155,21 +163,35 @@ mongo-test-locally ()
 
 	${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
 	set +e;
-	${__cmd_prefix} ./buildscripts/resmoke.py run \
-			--jobs=${__tasks} \
-			--log=file \
-			--storageEngine=wiredTiger \
-			--storageEngineCacheSizeGB=0.5 \
-			--mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
-			--runAllFeatureFlagTests \
-			${__args[@]} )
+	case ${__mongo_branch} in
+		v8.0 | master)
+			${__cmd_prefix} ${MONGO_PYTHON} build/install/bin/resmoke.py run \
+					--jobs=${__tasks} \
+					--log=file \
+					--storageEngine=wiredTiger \
+					--storageEngineCacheSizeGB=0.5 \
+					--mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
+					--runAllFeatureFlagTests \
+					${__args[@]}
+		;;
+		*)
+			${__cmd_prefix} ${MONGO_PYTHON} buildscripts/resmoke.py run \
+					--jobs=${__tasks} \
+					--log=file \
+					--storageEngine=wiredTiger \
+					--storageEngineCacheSizeGB=0.5 \
+					--mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
+					--runAllFeatureFlagTests \
+					${__args[@]}
+		;;
+	esac )
 }
 
 # Creates a new Evergreen path where it is possible to select the specific
 # suites to run. By default, all required suites are pre-selected.
 #
 # Options:
-#   - Branch: --master (default), --v7.3, --v7.0, --v6.0, --v5.0
+#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - All those of evergreen patch
 mongo-test-remotely ()
 {
@@ -255,6 +277,7 @@ mongo-debug ()
 
 MONGO_GIT_REMOTE=git@github.com:10gen/mongo.git
 MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
+MONGO_PYTHON=${MONGO_VENV_DIRNAME}/bin/python3
 MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd-graviton.production.build.10gen.cc'}
 
 ###
@@ -313,6 +336,10 @@ __mongo-parse-args ()
 			;;
 			--master)
 				__mongo_branch=master;
+				shift
+			;;
+			--v8.0)
+				__mongo_branch=v8.0;
 				shift
 			;;
 			--v7.3)
@@ -408,7 +435,7 @@ __mongo-configure-ninja ()
 	__mongo-check-venv;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} ./buildscripts/scons.py \
+	${__cmd_prefix} ${MONGO_PYTHON} buildscripts/scons.py \
 			--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
 			${__build_mode} \
 			${__link_model} \
