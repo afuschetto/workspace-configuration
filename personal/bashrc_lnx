@@ -16,6 +16,9 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 ### Set Git completition
 . ~/.config/workspace/personal/git-completion.bash
 
+### Set Homebrew
+eval $(/opt/homebrew/bin/brew shellenv)
+
 ### Set general environment settings
 export CLICOLOR=1
 export POSH_THEME="~/.config/workspace/personal/oh-my-posh-v4.omp.json"
@@ -40,8 +43,8 @@ alias e="emacs"
 alias diff="colordiff"
 alias tmux="tmux -u"
 
-### Set fzf (command-line fuzzy finder)
-if [[ -f ~/.fzf.bash ]]; then
-    . ~/.fzf.bash
+### Set fzf (key bindings and fuzzy completion)
+if [[ -x "$(command -v fzf)" ]]; then
+    eval "$(fzf --bash)"
     _fzf_setup_completion path code
 fi
