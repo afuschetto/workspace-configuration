@@ -3,7 +3,7 @@
         "*.idl": "yaml"
     },
     "files.exclude": {
-        "bazel*/": true,
+        "bazel.*/": true,
         "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
@@ -20,10 +20,11 @@
         "package.json": true,
         "pnpm-lock.yaml": true,
         "poetry.lock": true,
-        "pyproject.toml": true
+        "pyproject.toml": true,
+        "tools/": true
     },
     "files.watcherExclude": {
-        "bazel*/": true,
+        "bazel.*/": true,
         "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
@@ -40,11 +41,12 @@
         "package.json": true,
         "pnpm-lock.yaml": true,
         "poetry.lock": true,
-        "pyproject.toml": true
+        "pyproject.toml": true,
+        "tools/": true
     },
     "files.trimTrailingWhitespace": true,
     "search.exclude": {
-        "bazel*/": true,
+        "bazel.*/": true,
         "buildfarm/": true,
         "buildscripts/": true,
         "debian/": true,
@@ -61,7 +63,8 @@
         "package.json": true,
         "pnpm-lock.yaml": true,
         "poetry.lock": true,
-        "pyproject.toml": true
+        "pyproject.toml": true,
+        "tools/": true
     },
     "editor.rulers": [
         100
@@ -91,8 +94,12 @@
     "cSpell.words": [
         "BSON",
         "BSONOBJ",
+        "cohosted",
         "Configsvr",
         "dassert",
+        "defragmentation",
+        "defragmentations",
+        "defragmenting",
         "DLEVEL",
         "fassert",
         "FCVP",
@@ -116,13 +123,10 @@
         "Txns",
         "uassert",
         "uasserted",
+        "Undroppable",
         "Unreplicated",
         "UNSHARDED",
         "upserted",
-        "wuow",
-        "cohosted",
-        "defragmentation",
-        "defragmentations",
-        "defragmenting"
+        "wuow"
     ]
 }
