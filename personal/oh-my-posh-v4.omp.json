@@ -2,83 +2,95 @@
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
   "blocks": [
     {
+      "type": "prompt",
       "alignment": "left",
       "segments": [
         {
-          "background": "#9a348e",
-          "foreground": "#ffffff",
+          "properties": {
+            "cache_duration": "none"
+          },
           "leading_diamond": "\ue0b2",
-          "style": "diamond",
-          "template": " {{ if .SSHSession }}(SSH) {{ end }}{{ .UserName }}@{{ .HostName }} ",
           "trailing_diamond": "\ue0b0",
-          "type": "session"
+          "template": " {{ if .SSHSession }}(SSH) {{ end }}{{ .UserName }}@{{ .HostName }} ",
+          "foreground": "#ffffff",
+          "background": "#9a348e",
+          "type": "session",
+          "style": "diamond"
         },
         {
-          "background": "#0080ff",
-          "foreground": "#ffffff",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
           "properties": {
+            "cache_duration": "none",
             "style": "full"
           },
-          "style": "diamond",
-          "template": " {{ .Path }} ",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
           "trailing_diamond": "\ue0b0",
-          "type": "path"
+          "template": " {{ .Path }} ",
+          "foreground": "#ffffff",
+          "background": "#0080ff",
+          "type": "path",
+          "style": "diamond"
         },
         {
-          "background": "#c19c00",
-          "foreground": "#193549",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
           "properties": {
+            "cache_duration": "none",
             "fetch_status": true
           },
-          "style": "diamond",
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "trailing_diamond": "\ue0b0",
           "template": " {{ .HEAD }}{{ if .Working.Changed }} {{ .Working.String }}{{ end }}{{ if .Staging.Changed }} \ue0b1 {{ .Staging.String }}{{ end }} ",
-          "trailing_diamond": "\ue0b0",
-          "type": "git"
+          "foreground": "#193549",
+          "background": "#c19c00",
+          "type": "git",
+          "style": "diamond"
         },
         {
-          "background": "#906cff",
-          "foreground": "#100e23",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
-          "style": "diamond",
-          "template": " {{ .Full }} ",
-          "trailing_diamond": "\ue0b0",
-          "type": "python"
-        },
-        {
-          "background": "#8800dd",
-          "foreground": "#ffffff",
-          "leading_diamond": "<transparent,background>\ue0b0</>",
-          "style": "diamond",
-          "template": " {{ .FormattedMs }} ",
-          "trailing_diamond": "\ue0b0",
-          "type": "executiontime",
           "properties": {
+            "cache_duration": "none"
+          },
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "trailing_diamond": "\ue0b0",
+          "template": " {{ .Full }} ",
+          "foreground": "#100e23",
+          "background": "#906cff",
+          "type": "python",
+          "style": "diamond"
+        },
+        {
+          "properties": {
+            "cache_duration": "none",
             "style": "round",
             "threshold": 1000
-          }
+          },
+          "leading_diamond": "<transparent,background>\ue0b0</>",
+          "trailing_diamond": "\ue0b0",
+          "template": " {{ .FormattedMs }} ",
+          "foreground": "#ffffff",
+          "background": "#8800dd",
+          "type": "executiontime",
+          "style": "diamond"
         }
-      ],
-      "type": "prompt"
+      ]
     },
     {
-      "alignment": "right",
-      "type": "prompt"
+      "type": "prompt",
+      "alignment": "right"
     },
     {
+      "type": "prompt",
       "alignment": "left",
-      "newline": true,
       "segments": [
         {
+          "properties": {
+            "cache_duration": "none"
+          },
+          "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}❯❯</> ",
           "foreground": "#ffffff",
-          "style": "plain",
-          "template": "{{ if gt .Code 0 }}<#e61b1b>{{ else }}<#69ff94>{{ end }}\u276f\u276f</> ",
-          "type": "text"
+          "type": "text",
+          "style": "plain"
         }
       ],
-      "type": "prompt"
+      "newline": true
     }
   ],
-  "version": 2
+  "version": 3
 }
