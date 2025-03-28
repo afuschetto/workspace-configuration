@@ -1,9 +1,9 @@
 ### Set personal Linux settings
-. ${HOME}/.config/workspace/personal/bashrc_lnx
+. ~/.config/workspace/personal/bashrc_lnx
 
 ### Set general environment settings
-export PATH=${HOME}/devel/bin:${HOME}/demo/bin:${PATH}
-. ${HOME}/.config/workspace/personal/venv-auto-activate.sh
+export PATH=~/devel/bin:~/demo/bin:${PATH}
+. ~/.config/workspace/personal/venv-auto-activate.sh
 
 ### Set Homebrew
 # Note: Not supported on ARM processors
@@ -16,8 +16,8 @@ ulimit -n 64000
 ulimit -u 64000
 ulimit -l 256000
 ulimit -c unlimited
-export PATH=$/opt/mongodbtoolchain/v5/bin:${PATH}
-. ${HOME}/.config/workspace/mongodb/mongo-functions-lnx.sh
+export PATH=/opt/mongodbtoolchain/v5/bin:${PATH}
+. ~/.config/workspace/mongodb/mongo-functions-lnx.sh
 if [[ -x "$(command -v fzf)" ]]; then
     _fzf_setup_completion path mongo-test-locally
 fi
