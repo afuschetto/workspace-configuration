@@ -1,12 +1,9 @@
 ### Set personal Linux settings
-. ~/.config/workspace/personal/bashrc_lnx
+. ${HOME}/.config/workspace/personal/bashrc_lnx
 
 ### Set general environment settings
-export PATH=~/bin:~/.local/bin:~/devel/bin:~/demo/bin:${PATH}
-if [[ -x "$(command -v oh-my-posh)" ]]; then
-    eval "$(oh-my-posh --init --shell bash --config ${POSH_THEME})"
-fi
-. ~/.config/workspace/personal/venv-auto-activate.sh
+export PATH=${HOME}/devel/bin:${HOME}/demo/bin:${PATH}
+. ${HOME}/.config/workspace/personal/venv-auto-activate.sh
 
 ### Set Homebrew
 # Note: Not supported on ARM processors
@@ -19,9 +16,11 @@ ulimit -n 64000
 ulimit -u 64000
 ulimit -l 256000
 ulimit -c unlimited
-export PATH=${PATH}:/opt/mongodbtoolchain/v4/bin
-. ~/.config/workspace/mongodb/mongo-functions-lnx.sh
-_fzf_setup_completion path mongo-test-locally
+export PATH=$/opt/mongodbtoolchain/v5/bin:${PATH}
+. ${HOME}/.config/workspace/mongodb/mongo-functions-lnx.sh
+if [[ -x "$(command -v fzf)" ]]; then
+    _fzf_setup_completion path mongo-test-locally
+fi
 export NINJA_STATUS="[%f/%t (%p) %es] "
 if [[ -d /opt/go ]]; then
     export PATH=${PATH}:/opt/go/bin

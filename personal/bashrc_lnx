@@ -11,15 +11,16 @@ shopt -s histappend
 export BASH_SILENCE_DEPRECATION_WARNING=1
 
 ### Set Git prompt functions
-. ~/.config/workspace/personal/git-prompt.sh
+. ${HOME}/.config/workspace/personal/git-prompt.sh
 
 ### Set Git completition
-. ~/.config/workspace/personal/git-completion.bash
+. ${HOME}/.config/workspace/personal/git-completion.bash
 
 ### Set general environment settings
 export CLICOLOR=1
-export POSH_THEME="~/.config/workspace/personal/oh-my-posh-v4.omp.json"
+export PATH=${HOME}/bin:${HOME}/.local/bin:${PATH}
 if [[ -x "$(command -v oh-my-posh)" ]]; then
+    POSH_THEME=${HOME}/.config/workspace/personal/oh-my-posh-v4.omp.json
     eval "$(oh-my-posh --init --shell bash --config ${POSH_THEME})"
 else
     export PS1='\[\e[0;31m\][\u@\h:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
