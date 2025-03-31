@@ -42,7 +42,7 @@ mongo-prepare ()
 	${__echo} \rm -rf ${MONGO_VENV_DIR} node_modules;
 	${__echo} ${__toolchain_bin}/python3 -m venv ${MONGO_VENV_DIR};
 	${__echo} . ${MONGO_VENV_BIN}/activate;
-	${__echo} ${MONGO_VENV_BIN}/python3 -m pip install -U pip
+	${__echo} ${MONGO_VENV_BIN}/python3 -m pip install -U pip;
 
 	case ${__branch} in
 		v8.1 | master)
@@ -90,6 +90,11 @@ mongo-configure ()
 	__mongo-check-wrkdir;
 	__mongo-parse-args $@;
 
+	if [[ ${__support_bazel} == 1 ]]; then
+		echo "ERROR: Bazel is not supported" 1>&2;
+		return 1;
+	fi
+
 	__mongo-configure-ninja $@;
 	__mongo-configure-compiledb $@ )
 }
@@ -115,10 +120,16 @@ mongo-build ()
 	__mongo-check-venv;
 	__mongo-parse-args $@;
 
+	if [[ ${__support_bazel} == 1 ]]; then
+		echo "ERROR: Bazel is not supported" 1>&2;
+		return 1;
+	fi
+
 	[[ ${__format} == 1 ]] && ${__echo} mongo-format;
 
 	[[ -f build.ninja ]] || __mongo-configure-ninja $@;
 	[[ -f compile_commands.json ]] || __mongo-configure-compiledb $@;
+
 	${__echo} ninja \
 			-j400 \
 			generated-sources \
@@ -162,6 +173,11 @@ mongo-clean ()
 	( set -e;
 	__mongo-check-wrkdir;
 	__mongo-parse-args $@;
+
+	if [[ ${__support_bazel} == 1 ]]; then
+		echo "ERROR: Bazel is not supported" 1>&2;
+		return 1;
+	fi
 
 	${__echo} ninja -t clean;
 	${__echo} ccache -C )
@@ -327,6 +343,7 @@ mongo-debug ()
 	echo __clean=${__clean};
 	echo __branch=${__branch};
 	echo __toolchain_bin=${__toolchain_bin};
+	echo __support_bazel=${__support_bazel};
 	echo __compiler=${__compiler};
 	echo __build_mode=${__build_mode};
 	echo __link_model=${__link_model};
@@ -367,6 +384,7 @@ __mongo-parse-args ()
 	__clean=0;
 	__branch=master;
 	__toolchain_bin=/opt/mongodbtoolchain/v5/bin;
+	__support_bazel=1;
 	__compiler=clang;
 	__build_mode='--opt=off --dbg=on';
 	__link_model='--link-model=dynamic';
@@ -392,26 +410,31 @@ __mongo-parse-args ()
 			--master)
 				__branch=master;
 				__toolchain_bin=/opt/mongodbtoolchain/v5/bin;
+				__support_bazel=1;
 				shift
 			;;
 			--v8.1)
 				__branch=v8.1;
 				__toolchain_bin=/opt/mongodbtoolchain/v4/bin;
+				__support_bazel=1;
 				shift
 			;;
 			--v8.0)
 				__branch=v8.0;
 				__toolchain_bin=/opt/mongodbtoolchain/v4/bin;
+				__support_bazel=0;
 				shift
 			;;
 			--v7.0)
 				__branch=v7.0;
 				__toolchain_bin=/opt/mongodbtoolchain/v4/bin;
+				__support_bazel=0;
 				shift
 			;;
 			--v6.0)
 				__branch=v6.0;
 				__toolchain_bin=/opt/mongodbtoolchain/v3/bin;
+				__support_bazel=0;
 				shift
 			;;
 			--clang)
