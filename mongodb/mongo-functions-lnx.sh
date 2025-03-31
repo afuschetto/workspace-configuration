@@ -1,10 +1,25 @@
+################################################################################
+### Global settings
+################################################################################
+
+MONGO_GIT_REMOTE=git@github.com:10gen/mongo.git
+MONGO_VENV_DIR=${MONGO_VENV_DIR:-'.venv'}
+MONGO_VENV_BIN=${MONGO_VENV_DIR}/bin
+MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd-graviton.production.build.10gen.cc'}
+
+################################################################################
+### Build functions
+################################################################################
+
 # Resets the working tree to its initial state (as if it had just been cloned)
 # and creates a Python virtual environment with all the requirements installed.
 # All uncommitted changes and unversioned files will be lost (subject to
 # confirmation by the user).
 #
+# Synopsis:
+#   mongo-prepare [BRANCH] [OPTIONS]
+#
 # Options:
-#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - Untracked files: --no-clean (default), --clean
 mongo-prepare ()
 {
@@ -12,30 +27,43 @@ mongo-prepare ()
 	__mongo-check-wrkdir;
 	__mongo-parse-args $@;
 
-	if [[ ${__cmd_prefix} != echo && ${__clean} == 1 ]]; then
+	if [[ -z ${__echo} && ${__clean} == 1 ]]; then
 		echo "WARNING: All uncommitted changes and unversioned files will be lost";
 		read -p "Are you sure you want to proceed? [y/N] ";
 		[[ ${REPLY} =~ (y|Y) ]] || return 0;
 	fi
 
-	[[ -n ${VIRTUAL_ENV} ]] && ${__cmd_prefix} deactivate;
+	[[ -n ${VIRTUAL_ENV} ]] && ${__echo} deactivate;
 	if [[ ${__clean} == 1 ]]; then
-		${__cmd_prefix} \git clean -fdx;
-		${__cmd_prefix} ccache -C;
+		${__echo} \git clean -fdx;
+		${__echo} \ccache -C;
 	fi
 
-	${__cmd_prefix} \rm -rf ${MONGO_VENV_DIRNAME} node_modules;
-	${__cmd_prefix} \python3 -m venv ${MONGO_VENV_DIRNAME};
-	${__cmd_prefix} . ${MONGO_VENV_DIRNAME}/bin/activate;
+	${__echo} \rm -rf ${MONGO_VENV_DIR} node_modules;
+	${__echo} ${__toolchain_bin}/python3 -m venv ${MONGO_VENV_DIR};
+	${__echo} . ${MONGO_VENV_BIN}/activate;
+	${__echo} ${MONGO_VENV_BIN}/python3 -m pip install -U pip
 
-	case ${__mongo_branch} in
-		v7.3 | v8.0 | master)
-			${__cmd_prefix} ${MONGO_PYTHON} -m pip install 'poetry==1.5.1';
-			${__cmd_prefix} export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
-			${__cmd_prefix} ${MONGO_PYTHON} -m poetry install --no-root --sync
+	case ${__branch} in
+		v8.1 | master)
+			${__echo} ${MONGO_VENV_BIN}/python3 -m pip install poetry==2.0.0;
+			${__echo} export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
+			${__echo} ${MONGO_VENV_BIN}/python3 -m poetry install --no-root --sync
+		;;
+		v8.0)
+			# Dirty fix (https://mongodb.slack.com/archives/CR8SNBY0N/p1743416688220929
+			${__echo} ${MONGO_VENV_BIN}/python3 -m pip install zope-interface==5.0.0;
+			${__echo} ${MONGO_VENV_BIN}/python3 -m pip install poetry==2.0.0;
+			${__echo} export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
+			${__echo} ${MONGO_VENV_BIN}/python3 -m poetry install --no-root --sync
+		;;
+		v6.0)
+			# Dirty fix (https://mongodb.slack.com/archives/CR8SNBY0N/p1738691783057339)
+			${__echo} ${MONGO_VENV_BIN}/python3 -m pip install -U "setuptools<71.0.0"
+			${__echo} ${MONGO_VENV_BIN}/python3 -m pip install -r etc/pip/dev-requirements.txt
 		;;
 		*)
-			${__cmd_prefix} ${MONGO_PYTHON} -m pip install -r buildscripts/requirements.txt
+			${__echo} ${MONGO_VENV_BIN}/python3 -m pip install -r etc/pip/dev-requirements.txt
 		;;
 	esac )
 }
@@ -48,8 +76,10 @@ mongo-prepare ()
 # or removing a source file) and consequently the `build.ninja` and
 # `compile_commands.json` files must be recreated.
 #
+# Synopsis:
+#   mongo-configure [BRANCH] [OPTIONS]
+#
 # Options:
-#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
@@ -61,15 +91,17 @@ mongo-configure ()
 	__mongo-parse-args $@;
 
 	__mongo-configure-ninja $@;
-	__mongo-configure-compilation-db $@ )
+	__mongo-configure-compiledb $@ )
 }
 
 # Builds all the executables. If the `build.ninja` or `compile_commands.json`
 # file is missing (e.g. at first run), it is automatically generated. Source
 # files are also formatted before being compiled.
 #
+# Synopsis:
+#   mongo-build [BRANCH] [OPTIONS]
+#
 # Options:
-#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - Compiler family: --clang (default), --gcc
 #   - Compiling mode: --debug (default), --release
 #   - Linking mode: --dynamic (default), --static
@@ -83,21 +115,43 @@ mongo-build ()
 	__mongo-check-venv;
 	__mongo-parse-args $@;
 
-	[[ ${__format} == 1 ]] && ${__cmd_prefix} mongo-format;
+	[[ ${__format} == 1 ]] && ${__echo} mongo-format;
 
 	[[ -f build.ninja ]] || __mongo-configure-ninja $@;
-	[[ -f compile_commands.json ]] || __mongo-configure-compilation-db $@;
-	${__cmd_prefix} ninja \
+	[[ -f compile_commands.json ]] || __mongo-configure-compiledb $@;
+	${__echo} ninja \
 			-j400 \
 			generated-sources \
 			install-${__target} \
 			${__args[@]} )
 }
 
+# Formats the source code according to the conversion adopted by all development
+# teams.
+#
+# Synopsis:
+#   mongo-format [OPTIONS]
+#
+# Options:
+#   - All those of buildscripts/clang_format.py
+mongo-format ()
+{
+	( set -e;
+	__mongo-check-wrkdir;
+	__mongo-check-venv;
+	__mongo-parse-args $@;
+
+	${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/clang_format.py \
+			format-my )
+}
+
 # Deletes all files generated by running `mongo-build` function (i.e.
 # executables and object files). However, it does not delete the files
 # corresponding to the build configuration (i.e. `build.ninja` and
 # `compile_commands.json`).
+#
+# Synopsis:
+#   mongo-clean [OPTIONS]
 #
 # Options:
 #   - Compiler family: --clang (default), --gcc
@@ -109,39 +163,34 @@ mongo-clean ()
 	__mongo-check-wrkdir;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} ninja -t clean;
-	${__cmd_prefix} ccache -C )
+	${__echo} ninja -t clean;
+	${__echo} ccache -C )
 }
 
-# Formats the source code according to the conversion adopted by all development
-# teams.
+################################################################################
+### Test functions
+################################################################################
+
+# Finds all the suites on which the passed JS test can run.
 #
-# Options:
-#   - All those of buildscripts/clang_format.py
-mongo-format ()
+# Synopsis:
+#   mongo-find-suites [BRANCH] [FILE]
+mongo-find-suites ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
 	__mongo-check-venv;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} ${MONGO_PYTHON} buildscripts/clang_format.py format-my )
-}
-
-mongo-find-suites ()
-{
-	( set -e;
-	__mongo-check-wrkdir;
-	__mongo-check-venv;
-	__mongo-parse-args --master $@;
-
-	case ${__mongo_branch} in
-		v8.0 | master)
-			${__cmd_prefix} ${MONGO_PYTHON} build/install/bin/resmoke.py find-suites \
+	case ${__branch} in
+		v8.0 | v8.1 | master)
+			${__echo} ${MONGO_VENV_BIN}/python3 build/install/bin/resmoke.py \
+					find-suites \
 					${__args[@]}
 		;;
 		*)
-			${__cmd_prefix} ${MONGO_PYTHON} buildscripts/resmoke.py find-suites \
+			${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/resmoke.py \
+					find-suites \
 					${__args[@]}
 		;;
 	esac )
@@ -150,6 +199,9 @@ mongo-find-suites ()
 # Runs on the current machine the infrastructure to process the specified
 # JavaScript test. This proposes the last commit comment as a description of the
 # patch, however it also allows to provide a custom message.
+#
+# Synopsis:
+#   mongo-test-locally [BRANCH] [OPTIONS] [FILE]
 #
 # Options:
 #   - Concurrency: --single-task (default), --multi-task
@@ -161,11 +213,12 @@ mongo-test-locally ()
 	__mongo-check-venv;
 	__mongo-parse-args --master $@;
 
-	${__cmd_prefix} \rm -f executor.log fixture.log tests.log;
+	${__echo} \rm -f executor.log fixture.log tests.log;
 	set +e;
-	case ${__mongo_branch} in
-		v8.0 | master)
-			${__cmd_prefix} ${MONGO_PYTHON} build/install/bin/resmoke.py run \
+	case ${__branch} in
+		v8.0 | v8.1 | master)
+			${__echo} ${MONGO_VENV_BIN}/python3 build/install/bin/resmoke.py \
+					run \
 					--jobs=${__tasks} \
 					--log=file \
 					--storageEngine=wiredTiger \
@@ -175,7 +228,8 @@ mongo-test-locally ()
 					${__args[@]}
 		;;
 		*)
-			${__cmd_prefix} ${MONGO_PYTHON} buildscripts/resmoke.py run \
+			${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/resmoke.py \
+					run \
 					--jobs=${__tasks} \
 					--log=file \
 					--storageEngine=wiredTiger \
@@ -190,8 +244,10 @@ mongo-test-locally ()
 # Creates a new Evergreen path where it is possible to select the specific
 # suites to run. By default, all required suites are pre-selected.
 #
+# Synopsis:
+#   mongo-test-remotely [BRANCH] [OPTIONS]
+#
 # Options:
-#   - Branch: --master (default), --v8.0, --v7.3, --v7.0, --v6.0, --v5.0
 #   - All those of evergreen patch
 mongo-test-remotely ()
 {
@@ -200,7 +256,7 @@ mongo-test-remotely ()
 	__mongo-parse-args $@;
 
 	msg=$(git log -n 1 --pretty=%B | head -n 1);
-	if [[ ${__cmd_prefix} != echo ]]; then
+	if [[ ${__echo} != echo ]]; then
 		echo ${msg};
 		read -p "Do you want change the title of this Evergreen patch? [y/N] ";
 		if [[ ${REPLY} =~ (y|Y) ]]; then
@@ -208,59 +264,70 @@ mongo-test-remotely ()
 		fi;
 	fi;
 
-	${__cmd_prefix} evergreen patch \
-			--project mongodb-mongo-${__mongo_branch} \
+	${__echo} evergreen patch \
+			--project mongodb-mongo-${__branch} \
 			--skip_confirm \
 			--description "[$(git rev-parse --abbrev-ref HEAD)] ${msg}" \
 			${__args[@]} )
 }
 
 ################################################################################
+### Utility functions
+################################################################################
 
 # Clones the Git repository into the given directory (master as default).
+#
+# Synopsis:
+#   mongo-clone [BRANCH] [OPTIONS] DIR
 mongo-clone ()
 {
 	( set -e;
 	__mongo-parse-args $@;
 
 	if [[ ${#__args[@]} == 0 ]]; then
-		echo "ERROR: Missing directory of the local repository" 1>&2;
+		echo "ERROR: Missing directory name for the local repository" 1>&2;
 		return 1;
 	fi
-	${__cmd_prefix} \git clone ${MONGO_GIT_REMOTE} \
-			--branch ${__mongo_branch} \
+	${__echo} \git clone ${MONGO_GIT_REMOTE} \
+			--branch ${__branch} \
 			${__args[@]} )
 }
 
+# Synopsis:
+#   mongo-merge [BRANCH] [OPTIONS]
 mongo-merge ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} evergreen commit-queue merge \
-			--project mongodb-mongo-${__mongo_branch} \
+	${__echo} evergreen commit-queue merge \
+			--project mongodb-mongo-${__branch} \
 			${__args[@]} )
 }
 
+# Synopsis:
+#   mongo-monitor-buildnodes [OPTIONS]
 mongo-monitor-buildnodes ()
 {
 	( set -e;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} icecream-sundae -s ${MONGO_ICECREAM_HOSTNAME}
-	)
+	${__echo} icecream-sundae -s ${MONGO_ICECREAM_HOSTNAME} )
 }
 
+# Synopsis:
+#   mongo-debug [OPTIONS]
 mongo-debug ()
 {
 	( set -e;
 	__mongo-parse-args $@;
 
-	echo __cmd_prefix=${__cmd_prefix};
+	echo __echo=${__echo};
 	echo __clean=${__clean};
-	echo __mongo_branch=${__mongo_branch};
-	echo __toolchain=${__toolchain};
+	echo __branch=${__branch};
+	echo __toolchain_bin=${__toolchain_bin};
+	echo __compiler=${__compiler};
 	echo __build_mode=${__build_mode};
 	echo __link_model=${__link_model};
 	echo __format=${__format};
@@ -270,19 +337,8 @@ mongo-debug ()
 }
 
 ################################################################################
-
-###
-### Global settings
-###
-
-MONGO_GIT_REMOTE=git@github.com:10gen/mongo.git
-MONGO_VENV_DIRNAME=${MONGO_VENV_DIRNAME:-'.venv'}
-MONGO_PYTHON=${MONGO_VENV_DIRNAME}/bin/python3
-MONGO_ICECREAM_HOSTNAME=${MONGO_ICECREAM_HOSTNAME:-'iceccd-graviton.production.build.10gen.cc'}
-
-###
 ### Internal functions
-###
+################################################################################
 
 __mongo-check-wrkdir ()
 {
@@ -295,9 +351,9 @@ __mongo-check-wrkdir ()
 __mongo-check-venv ()
 {
 	if [[ -z ${VIRTUAL_ENV} ]]; then
-		if [[ -d ./${MONGO_VENV_DIRNAME} ]]; then
+		if [[ -d ./${MONGO_VENV_DIR} ]]; then
 			echo "NOTE: Implicit activation of Python virtual environment";
-			. ${MONGO_VENV_DIRNAME}/bin/activate;
+			. ${MONGO_VENV_BIN}/activate;
 		else
 			echo "ERROR: No Python virtual environment to activate" 1>&2;
 			return 1;
@@ -307,12 +363,11 @@ __mongo-check-venv ()
 
 __mongo-parse-args ()
 {
-	[[ -z ${__parsed_args} ]] && __parsed_args=true || return 0;
-
-	__cmd_prefix=;
+	__echo=;
 	__clean=0;
-	__mongo_branch=master;
-	__toolchain=clang;
+	__branch=master;
+	__toolchain_bin=/opt/mongodbtoolchain/v5/bin;
+	__compiler=clang;
 	__build_mode='--opt=off --dbg=on';
 	__link_model='--link-model=dynamic';
 	__format=1;
@@ -323,7 +378,7 @@ __mongo-parse-args ()
 	while [[ $# -gt 0 ]]; do
 		case $1 in
 			--echo)
-				__cmd_prefix=echo;
+				__echo=echo;
 				shift
 			;;
 			--clean)
@@ -335,35 +390,36 @@ __mongo-parse-args ()
 				shift
 			;;
 			--master)
-				__mongo_branch=master;
+				__branch=master;
+				__toolchain_bin=/opt/mongodbtoolchain/v5/bin;
+				shift
+			;;
+			--v8.1)
+				__branch=v8.1;
+				__toolchain_bin=/opt/mongodbtoolchain/v4/bin;
 				shift
 			;;
 			--v8.0)
-				__mongo_branch=v8.0;
-				shift
-			;;
-			--v7.3)
-				__mongo_branch=v7.3;
+				__branch=v8.0;
+				__toolchain_bin=/opt/mongodbtoolchain/v4/bin;
 				shift
 			;;
 			--v7.0)
-				__mongo_branch=v7.0;
+				__branch=v7.0;
+				__toolchain_bin=/opt/mongodbtoolchain/v4/bin;
 				shift
 			;;
 			--v6.0)
-				__mongo_branch=v6.0;
-				shift
-			;;
-			--v5.0)
-				__mongo_branch=v5.0;
+				__branch=v6.0;
+				__toolchain_bin=/opt/mongodbtoolchain/v3/bin;
 				shift
 			;;
 			--clang)
-				__toolchain=clang;
+				__compiler=clang;
 				shift
 			;;
 			--gcc)
-				__toolchain=gcc;
+				__compiler=gcc;
 				shift
 			;;
 			--debug)
@@ -435,8 +491,8 @@ __mongo-configure-ninja ()
 	__mongo-check-venv;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} ${MONGO_PYTHON} buildscripts/scons.py \
-			--variables-files=etc/scons/mongodbtoolchain_stable_${__toolchain}.vars \
+	${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/scons.py \
+			--variables-files=etc/scons/mongodbtoolchain_stable_${__compiler}.vars \
 			${__build_mode} \
 			${__link_model} \
 			--ninja generate-ninja \
@@ -445,13 +501,13 @@ __mongo-configure-ninja ()
 			${__args[@]} )
 }
 
-__mongo-configure-compilation-db ()
+__mongo-configure-compiledb ()
 {
 	( set -e;
 	__mongo-check-wrkdir;
 	__mongo-parse-args $@;
 
-	${__cmd_prefix} ninja \
+	${__echo} ninja \
 			compiledb \
 			${__args[@]} )
 }
