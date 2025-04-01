@@ -107,41 +107,5 @@
     },
     ////////////////////
     // code-spell-checker
-    "cSpell.words": [
-        "BSON",
-        "BSONOBJ",
-        "Configsvr",
-        "dassert",
-        "DLEVEL",
-        "fassert",
-        "FCVP",
-        "interruptible",
-        "invokable",
-        "itcount",
-        "jstests",
-        "Killable",
-        "logd",
-        "LOGV",
-        "multiversion",
-        "Noops",
-        "Oplog",
-        "optimes",
-        "retryable",
-        "sharded",
-        "shardsvr",
-        "stmts",
-        "tassert",
-        "tojsononeline",
-        "Txns",
-        "uassert",
-        "uasserted",
-        "Unreplicated",
-        "UNSHARDED",
-        "upserted",
-        "wuow",
-        "cohosted",
-        "defragmentation",
-        "defragmentations",
-        "defragmenting"
-    ]
+    "cSpell.words": []
 }
