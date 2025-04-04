@@ -35,7 +35,7 @@ mongo-prepare ()
 
 	[[ -n ${VIRTUAL_ENV} ]] && ${__echo} deactivate;
 	if [[ ${__clean} == 1 ]]; then
-		${__echo} \git clean -fdx;
+		${__echo} \git clean -fdx --exclude=".vscode*";
 		${__echo} \ccache -C;
 	fi
 
