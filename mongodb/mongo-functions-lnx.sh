@@ -46,9 +46,7 @@ mongo-prepare ()
 
 	case ${__branch} in
 		v8.1 | master)
-			${__echo} ${MONGO_VENV_BIN}/python3 -m pip install poetry==2.0.0;
-			${__echo} export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring;
-			${__echo} ${MONGO_VENV_BIN}/python3 -m poetry install --no-root --sync
+			${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/poetry_sync.sh
 		;;
 		v8.0)
 			# Dirty fix (https://mongodb.slack.com/archives/CR8SNBY0N/p1743416688220929
@@ -198,18 +196,9 @@ mongo-find-suites ()
 	__mongo-check-venv;
 	__mongo-parse-args $@;
 
-	case ${__branch} in
-		v8.0 | v8.1 | master)
-			${__echo} ${MONGO_VENV_BIN}/python3 build/install/bin/resmoke.py \
-					find-suites \
-					${__args[@]}
-		;;
-		*)
-			${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/resmoke.py \
-					find-suites \
-					${__args[@]}
-		;;
-	esac )
+	${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/resmoke.py \
+			find-suites \
+			${__args[@]} )
 }
 
 # Runs on the current machine the infrastructure to process the specified
@@ -221,7 +210,7 @@ mongo-find-suites ()
 #
 # Options:
 #   - Concurrency: --single-task (default), --multi-task
-#   - All those of build/install/bin/resmoke.py
+#   - All those of buildscripts/resmoke.py
 mongo-test-locally ()
 {
 	( set -e;
@@ -231,30 +220,15 @@ mongo-test-locally ()
 
 	${__echo} \rm -f executor.log fixture.log tests.log;
 	set +e;
-	case ${__branch} in
-		v8.0 | v8.1 | master)
-			${__echo} ${MONGO_VENV_BIN}/python3 build/install/bin/resmoke.py \
-					run \
-					--jobs=${__tasks} \
-					--log=file \
-					--storageEngine=wiredTiger \
-					--storageEngineCacheSizeGB=0.5 \
-					--mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
-					--runAllFeatureFlagTests \
-					${__args[@]}
-		;;
-		*)
-			${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/resmoke.py \
-					run \
-					--jobs=${__tasks} \
-					--log=file \
-					--storageEngine=wiredTiger \
-					--storageEngineCacheSizeGB=0.5 \
-					--mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
-					--runAllFeatureFlagTests \
-					${__args[@]}
-		;;
-	esac )
+	${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/resmoke.py \
+			run \
+			--jobs=${__tasks} \
+			--log=file \
+			--storageEngine=wiredTiger \
+			--storageEngineCacheSizeGB=0.5 \
+			--mongodSetParameters='{logComponentVerbosity: {verbosity: 2}}' \
+			--runAllFeatureFlagTests \
+			${__args[@]} )
 }
 
 # Creates a new Evergreen path where it is possible to select the specific
@@ -368,7 +342,7 @@ __mongo-check-wrkdir ()
 __mongo-check-venv ()
 {
 	if [[ -z ${VIRTUAL_ENV} ]]; then
-		if [[ -d ./${MONGO_VENV_DIR} ]]; then
+		if [[ -d ${MONGO_VENV_DIR} ]]; then
 			echo "NOTE: Implicit activation of Python virtual environment";
 			. ${MONGO_VENV_BIN}/activate;
 		else
