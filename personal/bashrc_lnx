@@ -42,7 +42,7 @@ alias diff="colordiff"
 alias tmux="tmux -u"
 
 ### Set fzf (key bindings and fuzzy completion)
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 if [[ -x "$(command -v fzf)" ]]; then
-    eval "$(fzf --bash)"
     _fzf_setup_completion path code
 fi
