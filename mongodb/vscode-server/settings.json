@@ -13,7 +13,7 @@
     "clangd.checkUpdates": false,
     "clangd.path": "/home/ubuntu/bin/clangd",
     "clangd.arguments": [
-        "--query-driver=/opt/mongodbtoolchain/v4/bin/clang++",
+        "--query-driver=/opt/mongodbtoolchain/v5/bin/clang++",
         "--header-insertion=never"
     ]
 }
