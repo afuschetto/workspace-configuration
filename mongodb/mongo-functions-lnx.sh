@@ -46,7 +46,7 @@ mongo-prepare ()
 
 	case ${__branch} in
 		v8.1 | master)
-			${__echo} ${MONGO_VENV_BIN}/python3 buildscripts/poetry_sync.sh
+			${__echo} ./buildscripts/poetry_sync.sh
 		;;
 		v8.0)
 			# Dirty fix (https://mongodb.slack.com/archives/CR8SNBY0N/p1743416688220929
@@ -343,7 +343,7 @@ __mongo-check-venv ()
 {
 	if [[ -z ${VIRTUAL_ENV} ]]; then
 		if [[ -d ${MONGO_VENV_DIR} ]]; then
-			echo "NOTE: Implicit activation of Python virtual environment";
+			echo "INFO: Implicit activation of Python virtual environment";
 			. ${MONGO_VENV_BIN}/activate;
 		else
 			echo "ERROR: No Python virtual environment to activate" 1>&2;
