@@ -19,11 +19,13 @@ export BASH_SILENCE_DEPRECATION_WARNING=1
 ### Set general environment settings
 export CLICOLOR=1
 export PATH=~/bin:~/.local/bin:${PATH}
-if [[ -x "$(command -v oh-my-posh)" ]]; then
+# Note: oh-my-posh's prompt is explicitly disabled here
+if false && [[ -x "$(command -v oh-my-posh)" ]]; then
     POSH_THEME=~/.config/workspace/personal/oh-my-posh-v4.omp.json
     eval "$(oh-my-posh --init --shell bash --config ${POSH_THEME})"
 else
-    export PS1='\[\e[0;31m\][\u@\h:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
+    #export PS1='\[\e[0;31m\][\u@\h:\[\e[0;33m\]\w\[\e[0;31m\]]\[\e[0;35m\]$(__git_ps1 "(%s)")\[\e[0;31m\]\$\[\e[0m\] '
+    . ~/.config/workspace/personal/bash_prompt
 fi
 export EDITOR=emacs
 HISTFILESIZE=10000

@@ -3,11 +3,3 @@
 
 ### Set aliases
 unalias ls
-
-### Set Homebrew bash completion
-#[[ -r /usr/local/etc/profile.d/bash_completion.sh ]] && . /usr/local/etc/profile.d/bash_completion.sh
-
-### Set Python 3.9 interpreter
-#if [[ -d /Library/Frameworks/Python.framework/Versions/3.9/bin ]]; then
-#	export PATH=/Library/Frameworks/Python.framework/Versions/3.9/bin:${PATH}
-#fi
