@@ -3,6 +3,7 @@
         "bazel*": true,
         "buildfarm": true,
         "buildscripts": true,
+        "copy.bara.staging.sky": true,
         "debian": true,
         "distsrc": true,
         "etc": true,
@@ -21,17 +22,20 @@
         "copy.bara.sky": true,
         "copybara.staging.sky": true,
         "jsconfig.json": true,
+        "module_poc": true,
         "package.json": true,
         "pnpm-lock.yaml": true,
         "poetry.lock": true,
         "pyproject.toml": true,
         "sbom.json": true,
-        "symbols.orderfile": true
+        "symbols.orderfile": true,
+        "x509": true
     },
     "files.exclude": {
         "bazel*": true,
         "buildfarm": true,
         "buildscripts": true,
+        "copy.bara.staging.sky": true,
         "debian": true,
         "distsrc": true,
         "etc": true,
@@ -50,17 +54,20 @@
         "copy.bara.sky": true,
         "copybara.staging.sky": true,
         "jsconfig.json": true,
+        "module_poc": true,
         "package.json": true,
         "pnpm-lock.yaml": true,
         "poetry.lock": true,
         "pyproject.toml": true,
         "sbom.json": true,
-        "symbols.orderfile": true
+        "symbols.orderfile": true,
+        "x509": true
     },
     "files.watcherExclude": {
         "bazel*": true,
         "buildfarm": true,
         "buildscripts": true,
+        "copy.bara.staging.sky": true,
         "debian": true,
         "distsrc": true,
         "etc": true,
@@ -79,12 +86,14 @@
         "copy.bara.sky": true,
         "copybara.staging.sky": true,
         "jsconfig.json": true,
+        "module_poc": true,
         "package.json": true,
         "pnpm-lock.yaml": true,
         "poetry.lock": true,
         "pyproject.toml": true,
         "sbom.json": true,
-        "symbols.orderfile": true
+        "symbols.orderfile": true,
+        "x509": true
     },
     "files.trimTrailingWhitespace": true,
     "files.associations": {
