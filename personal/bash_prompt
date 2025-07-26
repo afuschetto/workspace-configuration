@@ -8,8 +8,9 @@ PURPLE="\[\033[0;35m\]"
 __set_prompt() {
     # Set prompt symbol color based on last command status (green if success, red if failure)
     # Note: Do this first to avoid losing the return value of the last command
+    local exit_status=$?
     local prompt_symbol
-    if [[ $? -eq 0 ]]; then
+    if [[ $exit_status -eq 0 ]]; then
         prompt_symbol="${GREEN}\$${NONE} "
     else
         prompt_symbol="${RED}\$${NONE} "
