@@ -1,5 +1,3 @@
-# Based on https://gist.github.com/miki725/9783474
-
    RED="\[\033[0;31m\]"
  GREEN="\[\033[0;32m\]"
 YELLOW="\[\033[0;33m\]"
@@ -7,28 +5,43 @@ YELLOW="\[\033[0;33m\]"
 PURPLE="\[\033[0;35m\]"
   NONE="\[\e[0m\]"
 
-__parse_python_version() {
-    \python3 -c "import platform; print(platform.python_version())"
-}
+__set_prompt() {
+    # Set prompt symbol color based on last command status (green if success, red if failure)
+    # Note: Do this first to avoid losing the return value of the last command
+    local prompt_symbol
+    if [[ $? -eq 0 ]]; then
+        prompt_symbol="${GREEN}\$${NONE} "
+    else
+        prompt_symbol="${RED}\$${NONE} "
+    fi
 
-__set_prompt () {
-    # Doing this first to avoid losing the return value of the last command.
-    PROMPT=$([[ $? = 0 ]] && echo "${GREEN}\$${NONE} " || echo "${RED}\$${NONE} ")
+    # Build the base segment (always available)
+    local base_color
+    if [[ -n $SSH_CONNECTION || -n $SSH_CLIENT ]]; then
+        base_color=$RED
+    else
+        base_color=$GREEN
+    fi
+    local base_segment="${base_color}(\u@\h:${YELLOW}\w${base_color})${NONE} "
 
-    # Build the base segment (always available).
-    BASE_SEG="${GREEN}(\u@\h:${YELLOW}\w${GREEN})${NONE} "
+    # Build the Git branch segment (only in a local Git repository)
+    # Note: Use Git prompt functions defined in git-prompt.sh
+    local branch_name=$(__git_ps1 "%s")
+    local branch_segment=""
+    if [[ -n $branch_name ]]; then
+        branch_segment="${PURPLE}(${branch_name})${NONE} "
+    fi
 
-    # Build the Git branch segment (only if available).
-    # Git prompt functions are defined in git-prompt.sh.
-    BRANCH=$(__git_ps1 "%s")
-    BRANCH_SEG=$([[ -z "$BRANCH" ]] && echo "" || echo "${PURPLE}(${BRANCH})${NONE} ")
+    # Build the Python virtual environment segment (when available)
+    local venv_segment=""
+    if [[ -n $VIRTUAL_ENV ]]; then
+        venv_segment="${BLUE}($(basename $VIRTUAL_ENV))${NONE} "
+    fi
 
-    # Build the Python Virtual Environment segment (only if available).
-    VENV_SEG=$([[ -z "$VIRTUAL_ENV" ]] && echo "" || echo "${BLUE}($(__parse_python_version))${NONE} ")
-
-    PS1="${BASE_SEG}${BRANCH_SEG}${VENV_SEG}\n${PROMPT}"
+    # Combine all segments, with newline before prompt symbol line
+    PS1="${base_segment}${branch_segment}${venv_segment}\n${prompt_symbol}"
 }
 
 # The contents of this variable are executed as a regular Bash command just
-# before Bash displays a prompt.
+# before Bash displays a prompt
 PROMPT_COMMAND=__set_prompt
